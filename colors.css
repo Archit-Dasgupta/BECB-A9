@@ -1,0 +1,25 @@
+/* colors.css
+   Stronger non-white page background without changing HTML.
+   Also maps Tailwind's .bg-white to --surface so you can tint cards if needed.
+*/
+
+:root {
+  /* Page background (noticeably non-white, calming blue) */
+  --bg: #EEF2FF;         /* indigo-50 */
+  /* Card/panel surface (keep pure white for contrast; change if you want tinted cards) */
+  --surface: #FFFFFF;
+  /* Text and brand */
+  --text: #1F2937;       /* slate-800 */
+  --primary: #6366F1;    /* indigo-500 */
+  --accent:  #22C55E;    /* emerald-500 */
+  --dark: #111827;
+  --muted: #6B7280;
+  --success: #10B981;
+  --warning: #F59E0B;
+}
+
+/* Ensure the background color applies even if a UA stylesheet interferes */
+body { background: var(--bg) !important; color: var(--text); }
+
+/* Map Tailwind's bg-white to your surface token so you can tint cards later if desired */
+.bg-white { background-color: var(--surface) !important; }
