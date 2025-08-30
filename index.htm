@@ -16,29 +16,20 @@
     <!-- Theme / variables (no functional change) -->
     <link rel="stylesheet" href="colors.css" />
     <link rel="stylesheet" href="theme.css" />
+    <style>
+      .shadow-soft { box-shadow: 0 10px 30px rgba(0,0,0,0.08); }
+      .blur-card { backdrop-filter: blur(6px); }
+      .badge-lite { background: rgba(99,102,241,0.08); color: #4f46e5; }
+      .badge-accent { background: rgba(16,185,129,0.12); color: #10b981; }
+      .line-through-muted { text-decoration: line-through; color: #9ca3af; }
+    </style>
   </head>
-  <!-- NOTE: Body colors are driven by CSS vars so you can restyle via colors.css -->
   <body class="bg-[var(--bg)] text-[var(--text)]">
     <div id="root"></div>
 
     <script type="text/babel">
-      /*
-       * =========================
-       *  Paw Smile – Single File App
-       *  Key edit in this version:
-       *   - "Logo" (site title) is now a clickable Home button that sets page="landing".
-       *  Everything else remains functionally identical.
-       * =========================
-       */
-
       const { useState, useMemo, useEffect } = React;
 
-      /*---------------------------------------
-       * UI Primitives: Buttons
-       * - PrimaryBtn: solid accent button
-       * - OutlineBtn: bordered, neutral button
-       * You can reuse/rename these easily later.
-       *--------------------------------------*/
       const PrimaryBtn = ({ children, onClick, className = "", disabled = false }) => (
         <button
           onClick={onClick}
@@ -63,15 +54,9 @@
         </button>
       );
 
-      /*---------------------------------------
-       * Helpers
-       *--------------------------------------*/
       const formatINR = (n) => "₹" + n.toFixed(0);
       const pctOff = (price, compareAt) => Math.round(((compareAt - price) / compareAt) * 100);
 
-      /*---------------------------------------
-       * Catalog (Edit products here)
-       *--------------------------------------*/
       const CATALOG = [
         { id: 1, name: "Complete Dental Care Kit", price: 499, compareAt: 699, stock: 7,  image: "https://placedog.net/600/420?id=201", badge: "Best Seller" },
         { id: 2, name: "Puppy Gentle Brush + Gel", price: 399, compareAt: 549, stock: 12, image: "https://placedog.net/600/420?id=202", badge: "New" },
@@ -79,21 +64,10 @@
       ];
 
       function App() {
-        /*-------------------------------------
-         * Router-ish state
-         * page: "landing" | "about" | "shop" | "detail" | "address" | "payment" | "thankyou"
-         *------------------------------------*/
-        const [page, setPage] = useState("landing"); // Default page is the landing/home page
-
-        /*-------------------------------------
-         * Cart & product state
-         *------------------------------------*/
+        const [page, setPage] = useState("landing");
         const [cart, setCart] = useState([]);
-        const [activeId, setActiveId] = useState(CATALOG[0].id); // Which product is "open" on the detail page
+        const [activeId, setActiveId] = useState(CATALOG[0].id);
 
-        /*-------------------------------------
-         * Flash-sale countdown (purely visual)
-         *------------------------------------*/
         const [countdownSeconds, setCountdownSeconds] = useState(2 * 60 * 60);
         useEffect(() => {
           const t = setInterval(() => setCountdownSeconds(s => Math.max(s - 1, 0)), 1000);
@@ -106,16 +80,10 @@
           return `${h}:${m}:${s}`;
         }, [countdownSeconds]);
 
-        /*-------------------------------------
-         * Coupon state
-         *------------------------------------*/
         const [coupon, setCoupon] = useState("SMILE15");
         const [couponApplied, setCouponApplied] = useState(false);
         const FREE_SHIPPING_AT = 999;
 
-        /*-------------------------------------
-         * Derived cart metrics
-         *------------------------------------*/
         const cartCount = useMemo(() => cart.reduce((sum, l) => sum + l.qty, 0), [cart]);
         const cartSubtotal = useMemo(() => cart.reduce((sum, l) => {
           const p = CATALOG.find(x => x.id === l.id);
@@ -125,9 +93,6 @@
         const cartTotal = Math.max(cartSubtotal - discountValue, 0);
         const freeShipGap = Math.max(FREE_SHIPPING_AT - cartTotal, 0);
 
-        /*-------------------------------------
-         * Cart actions
-         *------------------------------------*/
         const [drawerOpen, setDrawerOpen] = useState(false);
 
         const addToCart = (id, qty = 1) => {
@@ -140,65 +105,69 @@
           if (qty <= 0) setCart(prev => prev.filter(l => l.id !== id));
           else setCart(prev => prev.map(l => l.id === id ? { ...l, qty } : l));
         };
-        const clearCart = () => setCart([]);
 
-        /*-------------------------------------
-         * Active product (for detail page)
-         *------------------------------------*/
         const activeProduct = CATALOG.find(p => p.id === activeId) || CATALOG[0];
 
-        /*-------------------------------------
-         * Small helper to make nav buttons
-         *------------------------------------*/
         const NavButton = ({ label, goto }) => (
           <button onClick={() => setPage(goto)} className="hover:opacity-90">{label}</button>
         );
 
-        /*-------------------------------------
-         * Render
-         *------------------------------------*/
+        const TESTIMONIALS = [
+          { name: "Aisha & Bruno", text: "Bruno actually lets me brush now. The gel smells good and no more bad breath!", rating: 5 },
+          { name: "Rahul & Coco", text: "Easy routine, noticeable difference in 2 weeks. Great value for money.", rating: 5 },
+          { name: "Meera & Simba", text: "Vet recommended this. The brush is soft and Coco loves the taste.", rating: 4 },
+        ];
+        const [tIndex, setTIndex] = useState(0);
+        const nextT = () => setTIndex(i => (i + 1) % TESTIMONIALS.length);
+        const prevT = () => setTIndex(i => (i - 1 + TESTIMONIALS.length) % TESTIMONIALS.length);
+        useEffect(() => {
+          const id = setInterval(nextT, 4000);
+          return () => clearInterval(id);
+        }, []);
+
         return (
           <div className="min-h-screen">
-            {/* Promo bar */}
             <div className="w-full bg-[var(--dark)] text-white text-center text-xs sm:text-sm py-2 px-3">
               <span className="font-semibold">Flash Sale</span>: 15% off with <span className="font-mono bg-white text-black px-1 rounded">SMILE15</span> — Ends in {timeLeft}
             </div>
 
-            {/* Header */}
             <header className="sticky top-0 z-50 w-full bg-[var(--primary)] text-white shadow">
               <div className="mx-auto max-w-screen-xl px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-3">
-                {/* =======================
-                   LOGO / HOME BUTTON
-                   - Click to go to "landing" (home) page.
-                   - Replace the text with an <img> if you have a logo file:
-                       <img src="logo.png" alt="Paw Smile" className="h-8 w-auto" />
-                   - Keep the onClick handler to preserve "go home" behavior.
-                   ======================= */}
                 <button
-                  onClick={() => { setPage("landing"); window.scrollTo?.({ top: 0, behavior: "smooth" }); }}
-                  className="text-left"
+                  onClick={() => { setPage('landing'); window.scrollTo?.({ top: 0, behavior: 'smooth' }); }}
+                  className="flex items-center gap-2 group"
                   aria-label="Go to Home"
+                  title="Paw Smile Dental — Home"
                 >
-                  <h1 className="text-lg sm:text-xl md:text-2xl font-extrabold tracking-tight">
-                    Paw Smile Dental
-                  </h1>
+                  <svg width="160" height="36" viewBox="0 0 320 72" fill="none" xmlns="http://www.w3.org/2000/svg" className="transition transform group-hover:scale-[1.02]">
+                    <defs>
+                      <linearGradient id="grad" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0%" stop-color="#ffffff" stop-opacity="1"/>
+                        <stop offset="100%" stop-color="#dbeafe" stop-opacity="1"/>
+                      </linearGradient>
+                    </defs>
+                    <g>
+                      <circle cx="28" cy="30" r="10" fill="url(#grad)"/>
+                      <circle cx="18" cy="18" r="5" fill="#ffffff" opacity="0.9"/>
+                      <circle cx="28" cy="14" r="5" fill="#ffffff" opacity="0.9"/>
+                      <circle cx="38" cy="18" r="5" fill="#ffffff" opacity="0.9"/>
+                      <path d="M22 36c6-2 16-2 22 0 2 6-2 12-6 12-3 0-5-3-5-6 0 3-2 6-5 6-4 0-8-6-6-12z" fill="#ffffff"/>
+                    </g>
+                    <text x="68" y="44" font-family="Segoe UI, system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif" font-weight="800" font-size="28" fill="#ffffff" letter-spacing="0.5">Paw Smile</text>
+                  </svg>
                 </button>
 
-                {/* Desktop nav (hidden on very small screens) */}
                 <nav className="hidden sm:flex items-center gap-4 text-sm md:text-base">
                   <NavButton label="Home" goto="landing" />
                   <NavButton label="About Us" goto="about" />
                   <NavButton label="Shop" goto="shop" />
                 </nav>
 
-                {/* Right side actions */}
                 <div className="flex items-center gap-2">
-                  {/* Compact "Shop" for tiny screens */}
-                  <button onClick={() => setPage("shop")} className="sm:hidden text-sm bg-white/10 px-3 py-1.5 rounded-lg">
+                  <button onClick={() => setPage('shop')} className="sm:hidden text-sm bg-white/10 px-3 py-1.5 rounded-lg">
                     Shop
                   </button>
 
-                  {/* Cart toggle button */}
                   <button
                     onClick={() => setDrawerOpen(true)}
                     className="relative rounded-xl bg-white/10 px-3 sm:px-4 py-1.5 sm:py-2 hover:bg-white/20 transition text-sm md:text-base"
@@ -214,7 +183,6 @@
               </div>
             </header>
 
-            {/* Cart Drawer (no functional changes) */}
             {drawerOpen && (
               <div className="fixed inset-0 z-50">
                 <div className="absolute inset-0 bg-black/40" onClick={() => setDrawerOpen(false)}></div>
@@ -224,13 +192,12 @@
                     <button className="text-gray-500 hover:text-black" onClick={() => setDrawerOpen(false)}>✕</button>
                   </div>
 
-                  {/* Free shipping nudge */}
                   <div className="rounded-xl border p-3 text-xs sm:text-sm">
                     {freeShipGap > 0 ? (
                       <>
                         <div className="mb-2">Add {formatINR(freeShipGap)} more for <span className="font-semibold">FREE Shipping</span></div>
                         <div className="w-full h-2 bg-gray-200 rounded">
-                          <div className="h-2 bg-[var(--accent)] rounded" style={{ width: Math.min((cartTotal / FREE_SHIPPING_AT) * 100, 100) + "%" }}></div>
+                          <div className="h-2 bg-[var(--accent)] rounded" style={{ width: Math.min((cartTotal / 999) * 100, 100) + "%" }}></div>
                         </div>
                       </>
                     ) : (
@@ -238,7 +205,6 @@
                     )}
                   </div>
 
-                  {/* Line items */}
                   <div className="space-y-3 max-h-[45vh] overflow-auto pr-1">
                     {cart.length === 0 && <div className="text-sm text-gray-500">Your cart is empty.</div>}
                     {cart.map(line => {
@@ -263,7 +229,6 @@
                     })}
                   </div>
 
-                  {/* Coupon + totals */}
                   <div className="flex items-center gap-2">
                     <input
                       value={coupon}
@@ -271,7 +236,7 @@
                       className="flex-1 border rounded-xl px-3 py-2 text-sm"
                       placeholder="Coupon code"
                     />
-                    <PrimaryBtn onClick={() => setCouponApplied(coupon.trim() === "SMILE15")} className="text-sm">Apply</PrimaryBtn>
+                    <PrimaryBtn onClick={() => setCouponApplied(coupon.trim() === 'SMILE15')} className="text-sm">Apply</PrimaryBtn>
                   </div>
                   {couponApplied
                     ? <div className="text-sm text-[var(--accent)]">✅ Coupon applied: -{formatINR(discountValue)}</div>
@@ -285,7 +250,7 @@
 
                   <div className="flex gap-2">
                     <PrimaryBtn
-                      onClick={() => { setDrawerOpen(false); if (cart.length) setPage("address"); }}
+                      onClick={() => { setDrawerOpen(false); if (cart.length) setPage('address'); }}
                       className="flex-1"
                       disabled={cart.length === 0}
                     >
@@ -296,52 +261,60 @@
               </div>
             )}
 
-            {/* Main content wrapper */}
             <main className="mx-auto max-w-screen-xl px-4 sm:px-6 py-6 sm:py-8 space-y-6 sm:space-y-8">
-              {/* LANDING PAGE (Home) */}
               {page === "landing" && (
                 <div className="space-y-6 sm:space-y-8">
-                  <section className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 items-center bg-white rounded-2xl shadow-lg p-4 sm:p-6">
-                    <div>
-                      <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[var(--primary)] leading-tight">
-                        Healthy Teeth. Happy Dogs.
-                      </h2>
-                      <p className="mt-3 text-base sm:text-lg">
-                        Vet-approved dental kits for wag-worthy smiles. Easy. Safe. Loved by pets & parents.
-                      </p>
-                      <div className="mt-4 sm:mt-5 flex flex-wrap gap-2 sm:gap-3">
-                        <PrimaryBtn onClick={() => setPage("shop")}>Shop Now</PrimaryBtn>
-                      </div>
-                      <div className="mt-5 sm:mt-6 flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm">
-                        <span className="inline-flex items-center gap-2 bg-[var(--bg)] px-2 sm:px-3 py-1 rounded-full border">⭐ 4.8/5 by 1,200+ pet parents</span>
-                        <span className="inline-flex items-center gap-2 bg-[var(--bg)] px-2 sm:px-3 py-1 rounded-full border">✅ Vet Recommended</span>
-                        <span className="inline-flex items-center gap-2 bg-[var(--bg)] px-2 sm:px-3 py-1 rounded-full border">🔁 30-day money-back</span>
-                      </div>
-                    </div>
+                  <section className="relative overflow-hidden bg-white rounded-2xl shadow-soft p-4 sm:p-6">
+                    <div className="absolute inset-0 bg-gradient-to-r from-indigo-50 via-white to-teal-50 opacity-80"></div>
+                    <div className="relative grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                      <div>
+                        <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-[var(--primary)] leading-tight">
+                          Healthy Teeth. Happy Dogs.
+                        </h2>
+                        <p className="mt-3 text-base sm:text-lg text-gray-700">
+                          Vet-approved dental kits for wag-worthy smiles. Easy. Safe. Loved by pets & parents.
+                        </p>
+                        <div className="mt-5 flex flex-wrap gap-3">
+                          <PrimaryBtn onClick={() => setPage('shop')}>Shop Now</PrimaryBtn>
+                          <OutlineBtn onClick={() => setPage('about')}>About Us</OutlineBtn>
+                        </div>
 
-                    <div className="relative">
-                      <div className="w-full rounded-2xl overflow-hidden shadow-xl aspect-[16/10]">
-                        <img
-                          src="https://placedog.net/900/650?id=101"
-                          alt="Happy dog hero"
-                          loading="lazy"
-                          className="w-full h-full object-cover"
-                        />
+                        <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                          <div className="flex items-center gap-2 bg-white border rounded-xl px-3 py-2 text-sm">
+                            <span>⭐</span><span>4.8/5 by 1,200+ pet parents</span>
+                          </div>
+                          <div className="flex items-center gap-2 bg-white border rounded-xl px-3 py-2 text-sm">
+                            <span>✅</span><span>Vet Recommended</span>
+                          </div>
+                          <div className="flex items-center gap-2 bg-white border rounded-xl px-3 py-2 text-sm">
+                            <span>🔁</span><span>30-day money-back</span>
+                          </div>
+                        </div>
                       </div>
-                      <div className="absolute -bottom-3 -right-3 bg-[var(--accent)] text-white text-xs sm:text-sm px-2 sm:px-3 py-1 rounded-lg shadow">
-                        10,000+ kits sold
+
+                      <div className="relative">
+                        <div className="w-full rounded-2xl overflow-hidden shadow-xl aspect-[16/10]">
+                          <img
+                            src="https://placedog.net/900/650?id=101"
+                            alt="Happy dog hero"
+                            loading="lazy"
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div className="absolute -bottom-3 -right-3 bg-[var(--accent)] text-white text-xs sm:text-sm px-3 py-1.5 rounded-lg shadow">
+                          10,000+ kits sold
+                        </div>
                       </div>
                     </div>
                   </section>
 
-                  {/* Feature cards */}
                   <section className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
                     {[
                       { title: "Vet Recommended", img: "https://placedog.net/400/300?id=111" },
                       { title: "Safe & Natural",   img: "https://placedog.net/400/300?id=112" },
                       { title: "Easy to Use",      img: "https://placedog.net/400/300?id=113" },
                     ].map(b => (
-                      <div key={b.title} className="bg-white rounded-2xl shadow p-4">
+                      <div key={b.title} className="bg-white rounded-2xl shadow p-4 hover:shadow-lg transition">
                         <div className="rounded-xl overflow-hidden aspect-[4/3] mb-3">
                           <img src={b.img} alt={b.title} loading="lazy" className="w-full h-full object-cover" />
                         </div>
@@ -349,27 +322,52 @@
                       </div>
                     ))}
                   </section>
+
+                  <section className="bg-white rounded-2xl shadow-soft p-4 sm:p-6">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-lg sm:text-xl font-bold text-[var(--primary)]">What Pet Parents Say</h3>
+                      <div className="flex items-center gap-2">
+                        <button className="px-3 py-1.5 rounded-lg border hover:bg-[var(--bg)]" aria-label="Previous" onClick={prevT}>‹</button>
+                        <button className="px-3 py-1.5 rounded-lg border hover:bg-[var(--bg)]" aria-label="Next" onClick={nextT}>›</button>
+                      </div>
+                    </div>
+
+                    <div className="relative overflow-hidden">
+                      <div className="transition-all duration-500" style={{ transform: `translateX(-${tIndex * 100}%)`, display: 'grid', gridTemplateColumns: `repeat(${TESTIMONIALS.length}, 100%)` }}>
+                        {TESTIMONIALS.map((t, idx) => (
+                          <div key={idx} className="p-2">
+                            <div className="border rounded-2xl p-4 sm:p-6 bg-gradient-to-br from-indigo-50 to-teal-50">
+                              <div className="flex items-center gap-2 text-amber-500 text-lg mb-2">{"★".repeat(t.rating)}<span className="text-gray-500 text-sm">({t.rating}.0)</span></div>
+                              <p className="text-sm sm:text-base text-gray-800">{t.text}</p>
+                              <div className="mt-3 text-sm font-semibold text-gray-700">— {t.name}</div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="mt-3 flex items-center justify-center gap-2">
+                      {TESTIMONIALS.map((_, i) => (
+                        <button key={i} onClick={() => setTIndex(i)} className={`w-2.5 h-2.5 rounded-full ${i===tIndex ? 'bg-[var(--primary)]' : 'bg-gray-300'}`} aria-label={`Go to slide ${i+1}`}></button>
+                      ))}
+                    </div>
+                  </section>
                 </div>
               )}
 
-              {/* ABOUT PAGE */}
               {page === "about" && (
-                <section className="bg-white rounded-2xl shadow p-4 sm:p-6">
-                  <div className="rounded-xl overflow-hidden aspect-[30/9] mb-4">
-                    <img src="https://placedog.net/1200/380?id=140" alt="About cover" loading="lazy" className="w-full h-full object-cover" />
-                  </div>
-                  <h2 className="text-xl sm:text-2xl font-bold text-[var(--primary)] mb-2">Our Story</h2>
-                  <p className="text-sm sm:text-base">We’re pet parents first. Our mission is to prevent dental disease in dogs with easy-to-use, safe, and effective kits. Every purchase supports dog shelters across India.</p>
+                <section className="bg-white rounded-2xl shadow p-6 max-w-3xl mx-auto text-center">
+                  <h2 className="text-2xl font-bold text-[var(--primary)] mb-2">Our Story</h2>
+                  <p className="text-sm sm:text-base text-gray-700">We’re pet parents first. Our mission is to prevent dental disease in dogs with easy-to-use, safe, and effective kits. Every purchase supports dog shelters across India.</p>
                 </section>
               )}
 
-              {/* SHOP / GRID */}
               {page === "shop" && (
                 <section className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
                   {CATALOG.map(p => (
                     <div
                       key={p.id}
-                      onClick={(e) => { e.stopPropagation(); setActiveId(p.id); setPage("detail"); }}
+                      onClick={(e) => { e.stopPropagation(); setActiveId(p.id); setPage('detail'); }}
                       className="bg-white rounded-2xl shadow hover:shadow-lg transition p-4 cursor-pointer card elev-1"
                     >
                       <div className="relative">
@@ -383,20 +381,19 @@
                       <h3 className="font-semibold leading-tight text-base sm:text-lg clamp-1">{p.name}</h3>
                       <div className="text-sm sm:text-base text-gray-600">
                         <span className="font-semibold price-now">{formatINR(p.price)}</span>{" "}
-                        <span className="price-was">{formatINR(p.compareAt)}</span>
+                        <span className="line-through-muted">{formatINR(p.compareAt)}</span>
                       </div>
-                      <div className="text-xs stock-warning mt-1">Only {p.stock} left</div>
+                      <div className="text-xs text-red-500 mt-1">Only {p.stock} left</div>
 
                       <div className="mt-3 flex gap-2">
                         <PrimaryBtn onClick={(e) => { e.stopPropagation(); addToCart(p.id); }} className="flex-1">Add to Cart</PrimaryBtn>
                       </div>
-                      <PrimaryBtn onClick={(e) => { e.stopPropagation(); addToCart(p.id); setPage("address"); }} className="mt-2 w-full">Buy Now</PrimaryBtn>
+                      <PrimaryBtn onClick={(e) => { e.stopPropagation(); addToCart(p.id); setPage('address'); }} className="mt-2 w-full">Buy Now</PrimaryBtn>
                     </div>
                   ))}
                 </section>
               )}
 
-              {/* PRODUCT DETAIL */}
               {page === "detail" && (
                 <section className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                   <div className="rounded-2xl overflow-hidden shadow aspect-[16/10]">
@@ -414,7 +411,7 @@
 
                     <div className="mt-4 flex flex-wrap gap-2 sm:gap-3">
                       <PrimaryBtn onClick={() => addToCart(activeProduct.id)}>Add to Cart</PrimaryBtn>
-                      <PrimaryBtn onClick={() => { addToCart(activeProduct.id); setPage("address"); }}>Buy Now</PrimaryBtn>
+                      <PrimaryBtn onClick={() => { addToCart(activeProduct.id); setPage('address'); }}>Buy Now</PrimaryBtn>
                     </div>
 
                     <div className="mt-6 grid grid-cols-3 text-xs sm:text-sm">
@@ -427,7 +424,6 @@
                 </section>
               )}
 
-              {/* ADDRESS / CHECKOUT STEP 1 */}
               {page === "address" && (
                 <section className="max-w-md w-full mx-auto bg-white rounded-2xl shadow p-4 sm:p-6">
                   <h2 className="text-lg sm:text-xl font-bold text-[var(--primary)]">Delivery Details</h2>
@@ -446,12 +442,11 @@
                       <div className="flex justify-between"><span>Discount (if coupon)</span><span>-{formatINR(discountValue)}</span></div>
                       <div className="flex justify-between font-semibold"><span>To Pay</span><span>{formatINR(cartTotal)}</span></div>
                     </div>
-                    <PrimaryBtn onClick={() => setPage("payment")}>Proceed to Payment</PrimaryBtn>
+                    <PrimaryBtn onClick={() => setPage('payment')}>Proceed to Payment</PrimaryBtn>
                   </div>
                 </section>
               )}
 
-              {/* PAYMENT / CHECKOUT STEP 2 */}
               {page === "payment" && (
                 <section className="max-w-md w-full mx-auto bg-white rounded-2xl shadow p-4 sm:p-6">
                   <div className="mb-4 text-xs sm:text-sm"><span className="font-medium">Address</span> → <span className="font-bold text-[var(--primary)]">Payment</span> → <span className="text-gray-400">Thank You</span></div>
@@ -460,20 +455,19 @@
                   </div>
                   <p className="mb-2">Order Total: <span className="font-semibold">{formatINR(cartTotal)}</span></p>
                   <p className="mb-4 text-sm text-gray-600">Pay via UPI, Cards, NetBanking, or Cash on Delivery.</p>
-                  <PrimaryBtn onClick={() => setPage("thankyou")}>Pay Now</PrimaryBtn>
+                  <PrimaryBtn onClick={() => setPage('thankyou')}>Pay Now</PrimaryBtn>
                 </section>
               )}
 
-              {/* THANK YOU / CONFIRMATION */}
               {page === "thankyou" && (
                 <section className="text-center bg-white rounded-2xl shadow p-6 sm:p-8 max-w-lg w-full mx-auto">
-                  <div className="rounded-xl overflow-hidden aspect-[25/17] mb-4">
+                  <div className="rounded-XL overflow-hidden aspect-[25/17] mb-4">
                     <img src="https://placedog.net/500/340?id=280" alt="Thank you dog" loading="lazy" className="w-full h-full object-cover" />
                   </div>
                   <h2 className="text-xl sm:text-2xl font-bold text-[var(--accent)]">Thank You!</h2>
                   <p className="mt-2">Your order has been placed successfully.</p>
                   <p className="text-sm mt-2">Estimated delivery: 3–5 days</p>
-                  <div className="mt-4"><OutlineBtn onClick={() => setPage("landing")}>Back to Home</OutlineBtn></div>
+                  <div className="mt-4"><OutlineBtn onClick={() => setPage('landing')}>Back to Home</OutlineBtn></div>
                 </section>
               )}
             </main>
@@ -481,7 +475,6 @@
         );
       }
 
-      // Mount React app
       const root = ReactDOM.createRoot(document.getElementById("root"));
       root.render(<App />);
     </script>
