@@ -12,8 +12,11 @@
 
     <!-- Tailwind -->
     <script defer src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Custom colors -->
+  <link rel="stylesheet" href="colors.css" />
   </head>
-  <body class="bg-[#FFF5E4] text-[#333333]">
+  <body class="bg-[var(--bg)] text-[var(--text)]">
     <div id="root"></div>
 
     <script type="text/babel">
@@ -25,7 +28,7 @@
           onClick={onClick}
           disabled={disabled}
           className={
-            "inline-flex items-center justify-center rounded-xl px-3 py-2 sm:px-4 sm:py-2 font-medium text-white bg-[#66B266] " +
+            "inline-flex items-center justify-center rounded-xl px-3 py-2 sm:px-4 sm:py-2 font-medium text-white bg-[var(--accent)] " +
             "hover:opacity-90 transition disabled:opacity-50 " + className
           }
         >
@@ -36,8 +39,8 @@
         <button
           onClick={onClick}
           className={
-            "inline-flex items-center justify-center rounded-xl px-3 py-2 sm:px-4 sm:py-2 font-medium border border-[#FF7B54] " +
-            "text-[#FF7B54] bg-white hover:bg-[#FFF5E4] transition " + className
+            "inline-flex items-center justify-center rounded-xl px-3 py-2 sm:px-4 sm:py-2 font-medium border border-[var(--primary)] " +
+            "text-[var(--primary)] bg-white hover:bg-[var(--bg)] transition " + className
           }
         >
           {children}
@@ -103,12 +106,12 @@
         return (
           <div className="min-h-screen">
             {/* Promo bar: slightly smaller text on phones */}
-            <div className="w-full bg-[#222] text-white text-center text-xs sm:text-sm py-2 px-3">
+            <div className="w-full bg-[var(--dark)] text-white text-center text-xs sm:text-sm py-2 px-3">
               <span className="font-semibold">Flash Sale</span>: 15% off with <span className="font-mono bg-white text-black px-1 rounded">SMILE15</span> — Ends in {timeLeft}
             </div>
 
             {/* Header: compress padding and hide long nav on xs */}
-            <header className="sticky top-0 z-50 w-full bg-[#FF7B54] text-white shadow">
+            <header className="sticky top-0 z-50 w-full bg-[var(--primary)] text-white shadow">
               <div className="mx-auto max-w-screen-xl px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-3">
                 <h1 className="text-lg sm:text-xl md:text-2xl font-extrabold tracking-tight">Paw Smile Dental</h1>
 
@@ -127,7 +130,7 @@
                   >
                     Cart
                     {cartCount > 0 && (
-                      <span className="absolute -top-2 -right-2 text-[10px] sm:text-xs bg-white text-[#FF7B54] font-bold rounded-full w-5 h-5 sm:w-6 sm:h-6 inline-flex items-center justify-center">
+                      <span className="absolute -top-2 -right-2 text-[10px] sm:text-xs bg-white text-[var(--primary)] font-bold rounded-full w-5 h-5 sm:w-6 sm:h-6 inline-flex items-center justify-center">
                         {cartCount}
                       </span>
                     )}
@@ -142,7 +145,7 @@
                 <div className="absolute inset-0 bg-black/40" onClick={() => setDrawerOpen(false)}></div>
                 <aside className="absolute right-0 top-0 h-full w-[96%] xs:w-[92%] sm:w-[420px] bg-white shadow-2xl p-4 sm:p-5 space-y-4">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-base sm:text-lg font-bold text-[#FF7B54]">Your Cart</h3>
+                    <h3 className="text-base sm:text-lg font-bold text-[var(--primary)]">Your Cart</h3>
                     <button className="text-gray-500 hover:text-black" onClick={() => setDrawerOpen(false)}>✕</button>
                   </div>
 
@@ -152,11 +155,11 @@
                       <>
                         <div className="mb-2">Add {formatINR(freeShipGap)} more for <span className="font-semibold">FREE Shipping</span></div>
                         <div className="w-full h-2 bg-gray-200 rounded">
-                          <div className="h-2 bg-[#66B266] rounded" style={{ width: Math.min((cartTotal / FREE_SHIPPING_AT) * 100, 100) + "%" }}></div>
+                          <div className="h-2 bg-[var(--accent)] rounded" style={{ width: Math.min((cartTotal / FREE_SHIPPING_AT) * 100, 100) + "%" }}></div>
                         </div>
                       </>
                     ) : (
-                      <div className="text-[#66B266] font-medium">🎉 You unlocked FREE shipping!</div>
+                      <div className="text-[var(--accent)] font-medium">🎉 You unlocked FREE shipping!</div>
                     )}
                   </div>
 
@@ -195,7 +198,7 @@
                     <PrimaryBtn onClick={() => setCouponApplied(coupon.trim() === "SMILE15")} className="text-sm">Apply</PrimaryBtn>
                   </div>
                   {couponApplied
-                    ? <div className="text-sm text-[#66B266]">✅ Coupon applied: -{formatINR(discountValue)}</div>
+                    ? <div className="text-sm text-[var(--accent)]">✅ Coupon applied: -{formatINR(discountValue)}</div>
                     : <div className="text-sm text-gray-500">Tip: Use <span className="font-mono">SMILE15</span> for 15% off</div>}
 
                   <div className="border rounded-xl p-3 text-sm space-y-1">
@@ -219,7 +222,7 @@
                 <div className="space-y-6 sm:space-y-8">
                   <section className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 items-center bg-white rounded-2xl shadow-lg p-4 sm:p-6">
                     <div>
-                      <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[#FF7B54] leading-tight">
+                      <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[var(--primary)] leading-tight">
                         Healthy Teeth. Happy Dogs.
                       </h2>
                       <p className="mt-3 text-base sm:text-lg">
@@ -230,9 +233,9 @@
                         <OutlineBtn onClick={() => setPage("about")}>Learn More</OutlineBtn>
                       </div>
                       <div className="mt-5 sm:mt-6 flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm">
-                        <span className="inline-flex items-center gap-2 bg-[#FFF5E4] px-2 sm:px-3 py-1 rounded-full border">⭐ 4.8/5 by 1,200+ pet parents</span>
-                        <span className="inline-flex items-center gap-2 bg-[#FFF5E4] px-2 sm:px-3 py-1 rounded-full border">✅ Vet Recommended</span>
-                        <span className="inline-flex items-center gap-2 bg-[#FFF5E4] px-2 sm:px-3 py-1 rounded-full border">🔁 30-day money-back</span>
+                        <span className="inline-flex items-center gap-2 bg-[var(--bg)] px-2 sm:px-3 py-1 rounded-full border">⭐ 4.8/5 by 1,200+ pet parents</span>
+                        <span className="inline-flex items-center gap-2 bg-[var(--bg)] px-2 sm:px-3 py-1 rounded-full border">✅ Vet Recommended</span>
+                        <span className="inline-flex items-center gap-2 bg-[var(--bg)] px-2 sm:px-3 py-1 rounded-full border">🔁 30-day money-back</span>
                       </div>
                     </div>
 
@@ -246,7 +249,7 @@
                           className="w-full h-full object-cover"
                         />
                       </div>
-                      <div className="absolute -bottom-3 -right-3 bg-[#66B266] text-white text-xs sm:text-sm px-2 sm:px-3 py-1 rounded-lg shadow">
+                      <div className="absolute -bottom-3 -right-3 bg-[var(--accent)] text-white text-xs sm:text-sm px-2 sm:px-3 py-1 rounded-lg shadow">
                         10,000+ kits sold
                       </div>
                     </div>
@@ -275,7 +278,7 @@
                   <div className="rounded-xl overflow-hidden aspect-[30/9] mb-4">
                     <img src="https://placedog.net/1200/380?id=140" alt="About cover" loading="lazy" className="w-full h-full object-cover" />
                   </div>
-                  <h2 className="text-xl sm:text-2xl font-bold text-[#FF7B54] mb-2">Our Story</h2>
+                  <h2 className="text-xl sm:text-2xl font-bold text-[var(--primary)] mb-2">Our Story</h2>
                   <p className="text-sm sm:text-base">We’re pet parents first. Our mission is to prevent dental disease in dogs with easy-to-use, safe, and effective kits. Every purchase supports dog shelters across India.</p>
                 </section>
               )}
@@ -289,8 +292,8 @@
                         <div className="rounded-xl overflow-hidden aspect-[4/3] mb-3">
                           <img src={p.image} alt={p.name} loading="lazy" className="w-full h-full object-cover" />
                         </div>
-                        <span className="absolute top-2 left-2 text-[10px] sm:text-xs bg-[#FF7B54] text-white px-2 py-1 rounded-lg">{p.badge}</span>
-                        <span className="absolute top-2 right-2 text-[10px] sm:text-xs bg-[#66B266] text-white px-2 py-1 rounded-lg">-{pctOff(p.price, p.compareAt)}%</span>
+                        <span className="absolute top-2 left-2 text-[10px] sm:text-xs bg-[var(--primary)] text-white px-2 py-1 rounded-lg">{p.badge}</span>
+                        <span className="absolute top-2 right-2 text-[10px] sm:text-xs bg-[var(--accent)] text-white px-2 py-1 rounded-lg">-{pctOff(p.price, p.compareAt)}%</span>
                       </div>
 
                       <h3 className="font-semibold leading-tight text-base sm:text-lg">{p.name}</h3>
@@ -318,11 +321,11 @@
                   </div>
 
                   <div className="bg-white rounded-2xl shadow p-4 sm:p-6">
-                    <h2 className="text-xl sm:text-2xl font-bold text-[#FF7B54]">{activeProduct.name}</h2>
+                    <h2 className="text-xl sm:text-2xl font-bold text-[var(--primary)]">{activeProduct.name}</h2>
                     <p className="mt-2">
                       <span className="font-semibold">{formatINR(activeProduct.price)}</span>
                       <span className="line-through text-gray-400 ml-2">{formatINR(activeProduct.compareAt)}</span>
-                      <span className="ml-2 text-[10px] sm:text-xs bg-[#66B266] text-white px-2 py-0.5 rounded">{pctOff(activeProduct.price, activeProduct.compareAt)}% OFF</span>
+                      <span className="ml-2 text-[10px] sm:text-xs bg-[var(--accent)] text-white px-2 py-0.5 rounded">{pctOff(activeProduct.price, activeProduct.compareAt)}% OFF</span>
                     </p>
                     <p className="mt-3 text-sm sm:text-base">Everything you need to keep your dog’s teeth clean and healthy.</p>
 
@@ -333,7 +336,7 @@
                     </div>
 
                     <div className="mt-6 grid grid-cols-3 text-xs sm:text-sm">
-                      <div className="border-b-2 border-[#FF7B54] pb-2 font-semibold">Description</div>
+                      <div className="border-b-2 border-[var(--primary)] pb-2 font-semibold">Description</div>
                       <div className="border-b pb-2 text-gray-500">Ingredients</div>
                       <div className="border-b pb-2 text-gray-500">Reviews</div>
                     </div>
@@ -345,7 +348,7 @@
               {/* Address */}
               {page === "address" && (
                 <section className="max-w-md w-full mx-auto bg-white rounded-2xl shadow p-4 sm:p-6">
-                  <h2 className="text-lg sm:text-xl font-bold text-[#FF7B54]">Delivery Details</h2>
+                  <h2 className="text-lg sm:text-xl font-bold text-[var(--primary)]">Delivery Details</h2>
                   <div className="text-xs mt-1 text-gray-600">Tip: Add more items and apply SMILE15 at checkout to save more.</div>
                   <div className="mt-4 space-y-3">
                     <input className="w-full rounded-xl border px-3 py-2 text-sm sm:text-base" placeholder="Full Name" />
@@ -369,7 +372,7 @@
               {/* Payment */}
               {page === "payment" && (
                 <section className="max-w-md w-full mx-auto bg-white rounded-2xl shadow p-4 sm:p-6">
-                  <div className="mb-4 text-xs sm:text-sm"><span className="font-medium">Address</span> → <span className="font-bold text-[#FF7B54]">Payment</span> → <span className="text-gray-400">Thank You</span></div>
+                  <div className="mb-4 text-xs sm:text-sm"><span className="font-medium">Address</span> → <span className="font-bold text-[var(--primary)]">Payment</span> → <span className="text-gray-400">Thank You</span></div>
                   <div className="rounded-xl overflow-hidden aspect-[5/2] mb-3">
                     <img src="https://placedog.net/500/200?id=260" alt="Payment visual" loading="lazy" className="w-full h-full object-cover" />
                   </div>
@@ -385,7 +388,7 @@
                   <div className="rounded-xl overflow-hidden aspect-[25/17] mb-4">
                     <img src="https://placedog.net/500/340?id=280" alt="Thank you dog" loading="lazy" className="w-full h-full object-cover" />
                   </div>
-                  <h2 className="text-xl sm:text-2xl font-bold text-[#66B266]">Thank You!</h2>
+                  <h2 className="text-xl sm:text-2xl font-bold text-[var(--accent)]">Thank You!</h2>
                   <p className="mt-2">Your order has been placed successfully.</p>
                   <p className="text-sm mt-2">Estimated delivery: 3–5 days</p>
                   <div className="mt-4"><OutlineBtn onClick={() => setPage("landing")}>Back to Home</OutlineBtn></div>
