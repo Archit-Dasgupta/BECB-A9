@@ -5,25 +5,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Paw Smile</title>
 
-    <!-- Load order (kept for local double-click testing) -->
+    <!-- React + Babel (kept for easy local double-click testing) -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-    <!-- Tailwind -->
+    <!-- Tailwind CDN -->
     <script defer src="https://cdn.tailwindcss.com"></script>
 
-  <!-- Custom colors -->
-  <link rel="stylesheet" href="colors.css" />
-  <link rel="stylesheet" href="theme.css" />
+    <!-- Theme / variables (no functional change) -->
+    <link rel="stylesheet" href="colors.css" />
+    <link rel="stylesheet" href="theme.css" />
   </head>
+  <!-- NOTE: Body colors are driven by CSS vars so you can restyle via colors.css -->
   <body class="bg-[var(--bg)] text-[var(--text)]">
     <div id="root"></div>
 
     <script type="text/babel">
+      /*
+       * =========================
+       *  Paw Smile – Single File App
+       *  Key edit in this version:
+       *   - "Logo" (site title) is now a clickable Home button that sets page="landing".
+       *  Everything else remains functionally identical.
+       * =========================
+       */
+
       const { useState, useMemo, useEffect } = React;
 
-      /* Buttons: slightly smaller padding on phones, scale up on larger screens */
+      /*---------------------------------------
+       * UI Primitives: Buttons
+       * - PrimaryBtn: solid accent button
+       * - OutlineBtn: bordered, neutral button
+       * You can reuse/rename these easily later.
+       *--------------------------------------*/
       const PrimaryBtn = ({ children, onClick, className = "", disabled = false }) => (
         <button
           onClick={onClick}
@@ -48,9 +63,15 @@
         </button>
       );
 
+      /*---------------------------------------
+       * Helpers
+       *--------------------------------------*/
       const formatINR = (n) => "₹" + n.toFixed(0);
       const pctOff = (price, compareAt) => Math.round(((compareAt - price) / compareAt) * 100);
 
+      /*---------------------------------------
+       * Catalog (Edit products here)
+       *--------------------------------------*/
       const CATALOG = [
         { id: 1, name: "Complete Dental Care Kit", price: 499, compareAt: 699, stock: 7,  image: "https://placedog.net/600/420?id=201", badge: "Best Seller" },
         { id: 2, name: "Puppy Gentle Brush + Gel", price: 399, compareAt: 549, stock: 12, image: "https://placedog.net/600/420?id=202", badge: "New" },
@@ -58,10 +79,21 @@
       ];
 
       function App() {
-        const [page, setPage] = useState("landing");
-        const [cart, setCart] = useState([]);
-        const [activeId, setActiveId] = useState(CATALOG[0].id);
+        /*-------------------------------------
+         * Router-ish state
+         * page: "landing" | "about" | "shop" | "detail" | "address" | "payment" | "thankyou"
+         *------------------------------------*/
+        const [page, setPage] = useState("landing"); // Default page is the landing/home page
 
+        /*-------------------------------------
+         * Cart & product state
+         *------------------------------------*/
+        const [cart, setCart] = useState([]);
+        const [activeId, setActiveId] = useState(CATALOG[0].id); // Which product is "open" on the detail page
+
+        /*-------------------------------------
+         * Flash-sale countdown (purely visual)
+         *------------------------------------*/
         const [countdownSeconds, setCountdownSeconds] = useState(2 * 60 * 60);
         useEffect(() => {
           const t = setInterval(() => setCountdownSeconds(s => Math.max(s - 1, 0)), 1000);
@@ -74,10 +106,16 @@
           return `${h}:${m}:${s}`;
         }, [countdownSeconds]);
 
+        /*-------------------------------------
+         * Coupon state
+         *------------------------------------*/
         const [coupon, setCoupon] = useState("SMILE15");
         const [couponApplied, setCouponApplied] = useState(false);
         const FREE_SHIPPING_AT = 999;
 
+        /*-------------------------------------
+         * Derived cart metrics
+         *------------------------------------*/
         const cartCount = useMemo(() => cart.reduce((sum, l) => sum + l.qty, 0), [cart]);
         const cartSubtotal = useMemo(() => cart.reduce((sum, l) => {
           const p = CATALOG.find(x => x.id === l.id);
@@ -87,6 +125,9 @@
         const cartTotal = Math.max(cartSubtotal - discountValue, 0);
         const freeShipGap = Math.max(FREE_SHIPPING_AT - cartTotal, 0);
 
+        /*-------------------------------------
+         * Cart actions
+         *------------------------------------*/
         const [drawerOpen, setDrawerOpen] = useState(false);
 
         const addToCart = (id, qty = 1) => {
@@ -101,30 +142,63 @@
         };
         const clearCart = () => setCart([]);
 
+        /*-------------------------------------
+         * Active product (for detail page)
+         *------------------------------------*/
         const activeProduct = CATALOG.find(p => p.id === activeId) || CATALOG[0];
-        const NavButton = ({ label, goto }) => <button onClick={() => setPage(goto)} className="hover:opacity-90">{label}</button>;
 
+        /*-------------------------------------
+         * Small helper to make nav buttons
+         *------------------------------------*/
+        const NavButton = ({ label, goto }) => (
+          <button onClick={() => setPage(goto)} className="hover:opacity-90">{label}</button>
+        );
+
+        /*-------------------------------------
+         * Render
+         *------------------------------------*/
         return (
           <div className="min-h-screen">
-            {/* Promo bar: slightly smaller text on phones */}
+            {/* Promo bar */}
             <div className="w-full bg-[var(--dark)] text-white text-center text-xs sm:text-sm py-2 px-3">
               <span className="font-semibold">Flash Sale</span>: 15% off with <span className="font-mono bg-white text-black px-1 rounded">SMILE15</span> — Ends in {timeLeft}
             </div>
 
-            {/* Header: compress padding and hide long nav on xs */}
+            {/* Header */}
             <header className="sticky top-0 z-50 w-full bg-[var(--primary)] text-white shadow">
               <div className="mx-auto max-w-screen-xl px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-3">
-                <h1 className="text-lg sm:text-xl md:text-2xl font-extrabold tracking-tight">Paw Smile Dental</h1>
+                {/* =======================
+                   LOGO / HOME BUTTON
+                   - Click to go to "landing" (home) page.
+                   - Replace the text with an <img> if you have a logo file:
+                       <img src="logo.png" alt="Paw Smile" className="h-8 w-auto" />
+                   - Keep the onClick handler to preserve "go home" behavior.
+                   ======================= */}
+                <button
+                  onClick={() => { setPage("landing"); window.scrollTo?.({ top: 0, behavior: "smooth" }); }}
+                  className="text-left"
+                  aria-label="Go to Home"
+                >
+                  <h1 className="text-lg sm:text-xl md:text-2xl font-extrabold tracking-tight">
+                    Paw Smile Dental
+                  </h1>
+                </button>
 
-                {/* On very small screens keep only Shop + Cart for space */}
+                {/* Desktop nav (hidden on very small screens) */}
                 <nav className="hidden sm:flex items-center gap-4 text-sm md:text-base">
                   <NavButton label="Home" goto="landing" />
                   <NavButton label="About Us" goto="about" />
                   <NavButton label="Shop" goto="shop" />
                 </nav>
 
+                {/* Right side actions */}
                 <div className="flex items-center gap-2">
-                  <button onClick={() => setPage("shop")} className="sm:hidden text-sm bg-white/10 px-3 py-1.5 rounded-lg">Shop</button>
+                  {/* Compact "Shop" for tiny screens */}
+                  <button onClick={() => setPage("shop")} className="sm:hidden text-sm bg-white/10 px-3 py-1.5 rounded-lg">
+                    Shop
+                  </button>
+
+                  {/* Cart toggle button */}
                   <button
                     onClick={() => setDrawerOpen(true)}
                     className="relative rounded-xl bg-white/10 px-3 sm:px-4 py-1.5 sm:py-2 hover:bg-white/20 transition text-sm md:text-base"
@@ -140,7 +214,7 @@
               </div>
             </header>
 
-            {/* Cart drawer */}
+            {/* Cart Drawer (no functional changes) */}
             {drawerOpen && (
               <div className="fixed inset-0 z-50">
                 <div className="absolute inset-0 bg-black/40" onClick={() => setDrawerOpen(false)}></div>
@@ -164,6 +238,7 @@
                     )}
                   </div>
 
+                  {/* Line items */}
                   <div className="space-y-3 max-h-[45vh] overflow-auto pr-1">
                     {cart.length === 0 && <div className="text-sm text-gray-500">Your cart is empty.</div>}
                     {cart.map(line => {
@@ -171,7 +246,6 @@
                       if (!p) return null;
                       return (
                         <div key={p.id} className="flex items-center gap-3 border rounded-xl p-2">
-                          {/* Use fixed thumbnail size on phones to avoid overflow */}
                           <img src={p.image} alt={p.name} width="64" height="64" loading="lazy" className="w-14 h-14 sm:w-16 sm:h-16 object-cover rounded-lg" />
                           <div className="flex-1 min-w-0">
                             <div className="font-medium text-sm sm:text-base truncate">{p.name}</div>
@@ -189,6 +263,7 @@
                     })}
                   </div>
 
+                  {/* Coupon + totals */}
                   <div className="flex items-center gap-2">
                     <input
                       value={coupon}
@@ -209,15 +284,21 @@
                   </div>
 
                   <div className="flex gap-2">
-                    <PrimaryBtn onClick={() => { setDrawerOpen(false); if (cart.length) setPage("address"); }} className="flex-1" disabled={cart.length === 0}>Checkout</PrimaryBtn>
+                    <PrimaryBtn
+                      onClick={() => { setDrawerOpen(false); if (cart.length) setPage("address"); }}
+                      className="flex-1"
+                      disabled={cart.length === 0}
+                    >
+                      Checkout
+                    </PrimaryBtn>
                   </div>
                 </aside>
               </div>
             )}
 
-            {/* Main wrapper: narrower max width on desktop; smaller padding on phones */}
+            {/* Main content wrapper */}
             <main className="mx-auto max-w-screen-xl px-4 sm:px-6 py-6 sm:py-8 space-y-6 sm:space-y-8">
-              {/* Landing */}
+              {/* LANDING PAGE (Home) */}
               {page === "landing" && (
                 <div className="space-y-6 sm:space-y-8">
                   <section className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 items-center bg-white rounded-2xl shadow-lg p-4 sm:p-6">
@@ -238,7 +319,6 @@
                       </div>
                     </div>
 
-                    {/* Use aspect ratio instead of fixed heights so images breathe on phones */}
                     <div className="relative">
                       <div className="w-full rounded-2xl overflow-hidden shadow-xl aspect-[16/10]">
                         <img
@@ -254,6 +334,7 @@
                     </div>
                   </section>
 
+                  {/* Feature cards */}
                   <section className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
                     {[
                       { title: "Vet Recommended", img: "https://placedog.net/400/300?id=111" },
@@ -271,7 +352,7 @@
                 </div>
               )}
 
-              {/* About */}
+              {/* ABOUT PAGE */}
               {page === "about" && (
                 <section className="bg-white rounded-2xl shadow p-4 sm:p-6">
                   <div className="rounded-xl overflow-hidden aspect-[30/9] mb-4">
@@ -282,11 +363,15 @@
                 </section>
               )}
 
-              {/* Shop */}
+              {/* SHOP / GRID */}
               {page === "shop" && (
                 <section className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
                   {CATALOG.map(p => (
-                    <div key={p.id} onClick={(e) => { e.stopPropagation(); setActiveId(p.id); setPage("detail"); }} className="bg-white rounded-2xl shadow hover:shadow-lg transition p-4 cursor-pointer card elev-1">
+                    <div
+                      key={p.id}
+                      onClick={(e) => { e.stopPropagation(); setActiveId(p.id); setPage("detail"); }}
+                      className="bg-white rounded-2xl shadow hover:shadow-lg transition p-4 cursor-pointer card elev-1"
+                    >
                       <div className="relative">
                         <div className="rounded-xl overflow-hidden aspect-[4/3] mb-3">
                           <img src={p.image} alt={p.name} loading="lazy" className="w-full h-full object-cover product-img" />
@@ -311,7 +396,7 @@
                 </section>
               )}
 
-              {/* Product Detail */}
+              {/* PRODUCT DETAIL */}
               {page === "detail" && (
                 <section className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                   <div className="rounded-2xl overflow-hidden shadow aspect-[16/10]">
@@ -342,7 +427,7 @@
                 </section>
               )}
 
-              {/* Address */}
+              {/* ADDRESS / CHECKOUT STEP 1 */}
               {page === "address" && (
                 <section className="max-w-md w-full mx-auto bg-white rounded-2xl shadow p-4 sm:p-6">
                   <h2 className="text-lg sm:text-xl font-bold text-[var(--primary)]">Delivery Details</h2>
@@ -366,7 +451,7 @@
                 </section>
               )}
 
-              {/* Payment */}
+              {/* PAYMENT / CHECKOUT STEP 2 */}
               {page === "payment" && (
                 <section className="max-w-md w-full mx-auto bg-white rounded-2xl shadow p-4 sm:p-6">
                   <div className="mb-4 text-xs sm:text-sm"><span className="font-medium">Address</span> → <span className="font-bold text-[var(--primary)]">Payment</span> → <span className="text-gray-400">Thank You</span></div>
@@ -378,7 +463,8 @@
                   <PrimaryBtn onClick={() => setPage("thankyou")}>Pay Now</PrimaryBtn>
                 </section>
               )}
-              {/* Thank You */}
+
+              {/* THANK YOU / CONFIRMATION */}
               {page === "thankyou" && (
                 <section className="text-center bg-white rounded-2xl shadow p-6 sm:p-8 max-w-lg w-full mx-auto">
                   <div className="rounded-xl overflow-hidden aspect-[25/17] mb-4">
@@ -395,6 +481,7 @@
         );
       }
 
+      // Mount React app
       const root = ReactDOM.createRoot(document.getElementById("root"));
       root.render(<App />);
     </script>
