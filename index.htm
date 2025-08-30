@@ -145,20 +145,21 @@
           const id = setInterval(nextT, 6500); // slower for readability
           return () => clearInterval(id);
         }, []);
-      // Minimal reveal-on-scroll
+      // Minimal reveal-on-scroll (fix disappearing features)
       useEffect(() => {
         const els = document.querySelectorAll('.reveal');
         const io = new IntersectionObserver((entries) => {
-          entries.forEach(e => {
-            if (e.isIntersecting) e.target.classList.add('revealed');
+          entries.forEach((e) => {
+            if (e.isIntersecting) {
+              e.target.classList.add('revealed');
+              io.unobserve(e.target); // stop observing once revealed
+            }
           });
         }, { threshold: 0.1 });
-        els.forEach(el => io.observe(el));
+        els.forEach((el) => io.observe(el));
         return () => io.disconnect();
-      }, []);
-
-
-        // ---------- NEW: Search state (desktop + mobile overlay) ----------
+      }, [page]); // re-run on page change
+// ---------- NEW: Search state (desktop + mobile overlay) ----------
         const [searchOpen, setSearchOpen] = useState(false);
         const [searchQuery, setSearchQuery] = useState("");
         const filteredProducts = useMemo(
@@ -240,10 +241,16 @@
         🔎
       </button>
 
-      {/* Mobile quick Shop link */}
-      <button onClick={() => setPage('shop')} className="sm:hidden text-sm bg-white/10 px-3 py-1.5 rounded-lg">
-        Shop
-      </button>
+      {/* Mobile quick nav (toggle Home/Shop) */}
+      {page === 'shop' ? (
+        <button onClick={() => setPage('landing')} className="sm:hidden text-sm bg-white/10 px-3 py-1.5 rounded-lg">
+          Home
+        </button>
+      ) : (
+        <button onClick={() => setPage('shop')} className="sm:hidden text-sm bg-white/10 px-3 py-1.5 rounded-lg">
+          Shop
+        </button>
+      )}
 
       {/* Cart */}
       <button
@@ -406,10 +413,10 @@
                       <div className="absolute inset-0 bg-gradient-to-r from-black/55 via-black/35 to-transparent"></div>
                     </div>
                     <div className="relative p-6 sm:p-10 min-h-[320px] md:min-h-[440px] flex items-center">
-                      <div className="max-w-2xl text-white">
+                      <div className="max-w-2xl text-white flex flex-col items-center text-center mx-auto sm:mx-0 sm:items-start sm:text-left">
                         <span className="inline-block bg-white/20 text-white font-medium text-xs sm:text-sm px-2 py-1 rounded mb-3">Vet Approved</span>
-                        <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold leading-tight drop-shadow">Healthy Teeth. Happy Dogs.</h2>
-                        <p className="mt-3 text-base sm:text-lg text-white/90">Easy, safe dental kits loved by pets & parents.</p>
+                        <h2 className="text-2xl sm:text-4xl md:text-5xl font-extrabold leading-tight drop-shadow">Healthy Teeth. Happy Dogs.</h2>
+                        <p className="mt-2 text-sm sm:mt-3 sm:text-lg text-white/90 max-w-xs sm:max-w-md">Easy, safe dental kits loved by pets & parents.</p>
 
                         {/* Centered CTAs on mobile */}
                         <div className="mt-5 flex flex-wrap justify-center sm:justify-start gap-3">
