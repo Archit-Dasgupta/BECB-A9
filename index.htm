@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Paw Smile - Local</title>
+    <!-- Tailwind CSS (no install) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React & ReactDOM (no install) -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <!-- Babel so we can write JSX in this file -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  </head>
+  <body class="bg-[#FFF5E4] text-[#333333]">
+    <div id="root"></div>
+
+    <script type="text/babel">
+      const { useState } = React;
+
+      // Simple buttons with Tailwind styles
+      const PrimaryBtn = ({ children, onClick }) => (
+        <button onClick={onClick} className="inline-flex items-center justify-center rounded-xl px-4 py-2 font-medium text-white bg-[#66B266] hover:opacity-90 transition">
+          {children}
+        </button>
+      );
+      const OutlineBtn = ({ children, onClick }) => (
+        <button onClick={onClick} className="inline-flex items-center justify-center rounded-xl px-4 py-2 font-medium border border-[#FF7B54] text-[#FF7B54] bg-white hover:bg-[#FFF5E4] transition">
+          {children}
+        </button>
+      );
+
+      function App() {
+        const [page, setPage] = useState("landing");
+
+        return (
+          <div className="min-h-screen">
+            {/* Sticky top nav */}
+            <header className="sticky top-0 z-50 w-full bg-[#FF7B54] text-white">
+              <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
+                <h1 className="text-xl md:text-2xl font-extrabold tracking-tight">HappyPaws Dental</h1>
+                <nav className="flex gap-5 text-sm md:text-base">
+                  <button onClick={() => setPage("landing")} className="hover:opacity-90">Home</button>
+                  <button onClick={() => setPage("about")} className="hover:opacity-90">About Us</button>
+                  <button onClick={() => setPage("shop")} className="hover:opacity-90">Shop</button>
+                </nav>
+              </div>
+            </header>
+
+            <main className="mx-auto max-w-6xl px-6 py-8 space-y-8">
+              {/* 1) Landing */}
+              {page === "landing" && (
+                <div className="space-y-8">
+                  {/* Hero */}
+                  <section className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center bg-white rounded-2xl shadow-lg p-6">
+                    <div>
+                      <h2 className="text-3xl md:text-4xl font-extrabold text-[#FF7B54] leading-tight">
+                        Healthy Teeth. Happy Dogs.
+                      </h2>
+                      <p className="mt-3 text-lg">
+                        Vet-approved dental kits for wag-worthy smiles. Easy. Safe. Loved by pets & parents.
+                      </p>
+                      <div className="mt-5 flex gap-3">
+                        <PrimaryBtn onClick={() => setPage("shop")}>Shop Now</PrimaryBtn>
+                        <OutlineBtn onClick={() => setPage("about")}>Learn More</OutlineBtn>
+                      </div>
+                      <div className="mt-6 flex flex-wrap items-center gap-4 text-sm">
+                        <span className="inline-flex items-center gap-2 bg-[#FFF5E4] px-3 py-1 rounded-full border">⭐ 4.8/5 by 1,200+ pet parents</span>
+                        <span className="inline-flex items-center gap-2 bg-[#FFF5E4] px-3 py-1 rounded-full border">✅ Vet Recommended</span>
+                        <span className="inline-flex items-center gap-2 bg-[#FFF5E4] px-3 py-1 rounded-full border">🔁 30-day money-back</span>
+                      </div>
+                    </div>
+                    <div className="relative">
+                      <img src="https://placedog.net/900/650?id=101" alt="Happy dog hero" className="w-full h-auto rounded-2xl shadow-xl object-cover" />
+                      <div className="absolute -bottom-3 -right-3 bg-[#66B266] text-white text-sm px-3 py-1 rounded-lg shadow">10,000+ kits sold</div>
+                    </div>
+                  </section>
+
+                  {/* Benefits */}
+                  <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {[
+                      { title: "Vet Recommended", img: "https://placedog.net/400/300?id=111" },
+                      { title: "Safe & Natural",   img: "https://placedog.net/400/300?id=112" },
+                      { title: "Easy to Use",      img: "https://placedog.net/400/300?id=113" },
+                    ].map(b => (
+                      <div key={b.title} className="bg-white rounded-2xl shadow p-4">
+                        <img src={b.img} alt={b.title} className="w-full h-40 object-cover rounded-xl mb-3" />
+                        <h3 className="font-semibold">{b.title}</h3>
+                      </div>
+                    ))}
+                  </section>
+
+                  {/* Social Proof */}
+                  <section className="bg-white rounded-2xl shadow p-6">
+                    <h3 className="text-xl font-bold text-[#FF7B54] mb-4">Loved by Pet Parents</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      {[121, 122, 123].map(id => (
+                        <figure key={id} className="text-center">
+                          <img src={"https://placedog.net/500/340?id=" + id} alt="Customer dog" className="w-full h-44 object-cover rounded-xl shadow" />
+                          <figcaption className="text-sm mt-2">“Bella’s breath is so much fresher now!”</figcaption>
+                        </figure>
+                      ))}
+                    </div>
+                  </section>
+                </div>
+              )}
+
+              {/* 2) About */}
+              {page === "about" && (
+                <section className="space-y-6">
+                  <div className="bg-white rounded-2xl shadow p-6">
+                    <img src="https://placedog.net/1200/380?id=140" alt="About cover" className="w-full h-56 object-cover rounded-xl mb-4" />
+                    <h2 className="text-2xl font-bold text-[#FF7B54] mb-2">Our Story</h2>
+                    <p>We’re pet parents first. Our mission is to prevent dental disease in dogs with easy-to-use, safe, and effective kits. Every purchase supports dog shelters across India.</p>
+                  </div>
+                </section>
+              )}
+
+              {/* 3) Shop */}
+              {page === "shop" && (
+                <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {[1,2,3].map(i => (
+                    <div key={i} onClick={() => setPage("detail")} className="bg-white rounded-2xl shadow hover:shadow-lg transition cursor-pointer p-4">
+                      <img src={"https://placedog.net/600/420?id=" + (200+i)} alt={"Dental Kit " + i} className="w-full h-44 object-cover rounded-xl mb-3" />
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h3 className="font-semibold">Dental Kit {i}</h3>
+                          <p className="text-sm text-gray-600">₹499</p>
+                        </div>
+                        <PrimaryBtn>View</PrimaryBtn>
+                      </div>
+                    </div>
+                  ))}
+                </section>
+              )}
+
+              {/* 4) Product Detail */}
+              {page === "detail" && (
+                <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <img src="https://placedog.net/900/650?id=240" alt="Complete Dental Care Kit" className="w-full h-auto rounded-2xl shadow" />
+                  <div className="bg-white rounded-2xl shadow p-6">
+                    <h2 className="text-2xl font-bold text-[#FF7B54]">Complete Dental Care Kit</h2>
+                    <p className="mt-2">Everything you need to keep your dog’s teeth clean and healthy.</p>
+                    <p className="mt-3 font-semibold">₹499 <span className="line-through text-gray-400 ml-2">₹699</span></p>
+                    <div className="mt-4 flex gap-3">
+                      <PrimaryBtn onClick={() => setPage("address")}>Add to Cart</PrimaryBtn>
+                      <OutlineBtn onClick={() => setPage("shop")}>Back to Shop</OutlineBtn>
+                    </div>
+                    <div className="mt-6 grid grid-cols-3 text-sm">
+                      <div className="border-b-2 border-[#FF7B54] pb-2 font-semibold">Description</div>
+                      <div className="border-b pb-2 text-gray-500">Ingredients</div>
+                      <div className="border-b pb-2 text-gray-500">Reviews</div>
+                    </div>
+                    <p className="mt-3 text-sm">Starter kit with brush, gel, and tutorial. Gentle on gums, effective on plaque.</p>
+                  </div>
+                </section>
+              )}
+
+              {/* 5) Address */}
+              {page === "address" && (
+                <section className="max-w-md mx-auto bg-white rounded-2xl shadow p-6">
+                  <h2 className="text-xl font-bold text-[#FF7B54]">Delivery Details</h2>
+                  <div className="mt-4 space-y-3">
+                    <input className="w-full rounded-xl border px-3 py-2" placeholder="Full Name" />
+                    <input className="w-full rounded-xl border px-3 py-2" placeholder="Mobile Number" />
+                    <input className="w-full rounded-xl border px-3 py-2" placeholder="Address" />
+                    <div className="grid grid-cols-2 gap-3">
+                      <input className="rounded-xl border px-3 py-2" placeholder="City" />
+                      <input className="rounded-xl border px-3 py-2" placeholder="Pin Code" />
+                    </div>
+                    <PrimaryBtn onClick={() => setPage("payment")}>Proceed to Payment</PrimaryBtn>
+                  </div>
+                </section>
+              )}
+
+              {/* 6) Payment */}
+              {page === "payment" && (
+                <section className="max-w-md mx-auto bg-white rounded-2xl shadow p-6">
+                  <div className="mb-4 text-sm"><span className="font-medium">Address</span> → <span className="font-bold text-[#FF7B54]">Payment</span> → <span className="text-gray-400">Thank You</span></div>
+                  <img src="https://placedog.net/500/200?id=260" alt="Payment visual" className="w-full h-32 object-cover rounded-xl mb-3" />
+                  <p className="mb-4">Order: Complete Dental Care Kit – ₹499</p>
+                  <PrimaryBtn onClick={() => setPage("thankyou")}>Pay Now</PrimaryBtn>
+                </section>
+              )}
+
+              {/* 7) Thank You */}
+              {page === "thankyou" && (
+                <section className="text-center bg-white rounded-2xl shadow p-8 max-w-lg mx-auto">
+                  <img src="https://placedog.net/500/340?id=280" alt="Thank you dog" className="mx-auto rounded-xl mb-4 shadow" />
+                  <h2 className="text-2xl font-bold text-[#66B266]">Thank You!</h2>
+                  <p className="mt-2">Your order has been placed successfully.</p>
+                  <p className="text-sm mt-2">Estimated delivery: 3–5 days</p>
+                  <div className="mt-4">
+                    <OutlineBtn onClick={() => setPage("landing")}>Back to Home</OutlineBtn>
+                  </div>
+                </section>
+              )}
+            </main>
+          </div>
+        );
+      }
+
+      const root = ReactDOM.createRoot(document.getElementById("root"));
+      root.render(<App />);
+    </script>
+  </body>
+</html>
