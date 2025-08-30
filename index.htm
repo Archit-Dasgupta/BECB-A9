@@ -18,9 +18,6 @@
     <link rel="stylesheet" href="theme.css" />
     <style>
       .shadow-soft { box-shadow: 0 10px 30px rgba(0,0,0,0.08); }
-      .blur-card { backdrop-filter: blur(6px); }
-      .badge-lite { background: rgba(99,102,241,0.08); color: #4f46e5; }
-      .badge-accent { background: rgba(16,185,129,0.12); color: #10b981; }
       .line-through-muted { text-decoration: line-through; color: #9ca3af; }
     </style>
   </head>
@@ -121,29 +118,32 @@
         const nextT = () => setTIndex(i => (i + 1) % TESTIMONIALS.length);
         const prevT = () => setTIndex(i => (i - 1 + TESTIMONIALS.length) % TESTIMONIALS.length);
         useEffect(() => {
-          const id = setInterval(nextT, 4000);
+          const id = setInterval(nextT, 6500); // slower for readability
           return () => clearInterval(id);
         }, []);
 
         return (
           <div className="min-h-screen">
+            {/* Promo bar */}
             <div className="w-full bg-[var(--dark)] text-white text-center text-xs sm:text-sm py-2 px-3">
               <span className="font-semibold">Flash Sale</span>: 15% off with <span className="font-mono bg-white text-black px-1 rounded">SMILE15</span> — Ends in {timeLeft}
             </div>
 
+            {/* Header */}
             <header className="sticky top-0 z-50 w-full bg-[var(--primary)] text-white shadow">
               <div className="mx-auto max-w-screen-xl px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-3">
+                {/* Logo as home */}
                 <button
                   onClick={() => { setPage('landing'); window.scrollTo?.({ top: 0, behavior: 'smooth' }); }}
                   className="flex items-center gap-2 group"
                   aria-label="Go to Home"
                   title="Paw Smile Dental — Home"
                 >
-                  <svg width="160" height="36" viewBox="0 0 320 72" fill="none" xmlns="http://www.w3.org/2000/svg" className="transition transform group-hover:scale-[1.02]">
+                  <svg width="150" height="34" viewBox="0 0 320 72" fill="none" xmlns="http://www.w3.org/2000/svg" className="transition transform group-hover:scale-[1.02]">
                     <defs>
                       <linearGradient id="grad" x1="0" y1="0" x2="1" y2="1">
-                        <stop offset="0%" stop-color="#ffffff" stop-opacity="1"/>
-                        <stop offset="100%" stop-color="#dbeafe" stop-opacity="1"/>
+                        <stop offset="0%" stopColor="#ffffff" stopOpacity="1"/>
+                        <stop offset="100%" stopColor="#dbeafe" stopOpacity="1"/>
                       </linearGradient>
                     </defs>
                     <g>
@@ -167,7 +167,6 @@
                   <button onClick={() => setPage('shop')} className="sm:hidden text-sm bg-white/10 px-3 py-1.5 rounded-lg">
                     Shop
                   </button>
-
                   <button
                     onClick={() => setDrawerOpen(true)}
                     className="relative rounded-xl bg-white/10 px-3 sm:px-4 py-1.5 sm:py-2 hover:bg-white/20 transition text-sm md:text-base"
@@ -183,6 +182,8 @@
               </div>
             </header>
 
+            {/* Cart Drawer (unchanged) ... omitted here to keep file concise? No – keep full as before */}
+            {/* Drawer */}
             {drawerOpen && (
               <div className="fixed inset-0 z-50">
                 <div className="absolute inset-0 bg-black/40" onClick={() => setDrawerOpen(false)}></div>
@@ -193,9 +194,9 @@
                   </div>
 
                   <div className="rounded-xl border p-3 text-xs sm:text-sm">
-                    {freeShipGap > 0 ? (
+                    {Math.max(FREE_SHIPPING_AT - cartTotal, 0) > 0 ? (
                       <>
-                        <div className="mb-2">Add {formatINR(freeShipGap)} more for <span className="font-semibold">FREE Shipping</span></div>
+                        <div className="mb-2">Add {formatINR(Math.max(FREE_SHIPPING_AT - cartTotal, 0))} more for <span className="font-semibold">FREE Shipping</span></div>
                         <div className="w-full h-2 bg-gray-200 rounded">
                           <div className="h-2 bg-[var(--accent)] rounded" style={{ width: Math.min((cartTotal / 999) * 100, 100) + "%" }}></div>
                         </div>
@@ -218,7 +219,11 @@
                             <div className="text-xs sm:text-sm">{formatINR(p.price)} ×
                               <input
                                 type="number" min="0" value={line.qty}
-                                onChange={(e) => updateQty(p.id, parseInt(e.target.value || 0, 10))}
+                                onChange={(e) => {
+                                  const v = parseInt(e.target.value || 0, 10);
+                                  if (v <= 0) setCart(prev => prev.filter(l => l.id !== p.id));
+                                  else setCart(prev => prev.map(l => l.id === p.id ? { ...l, qty: v } : l));
+                                }}
                                 className="w-12 sm:w-14 ml-2 border rounded px-1 py-0.5 text-center"
                               />
                             </div>
@@ -239,13 +244,13 @@
                     <PrimaryBtn onClick={() => setCouponApplied(coupon.trim() === 'SMILE15')} className="text-sm">Apply</PrimaryBtn>
                   </div>
                   {couponApplied
-                    ? <div className="text-sm text-[var(--accent)]">✅ Coupon applied: -{formatINR(discountValue)}</div>
+                    ? <div className="text-sm text-[var(--accent)]">✅ Coupon applied: -{formatINR(Math.round(cartSubtotal * 0.15))}</div>
                     : <div className="text-sm text-gray-500">Tip: Use <span className="font-mono">SMILE15</span> for 15% off</div>}
 
                   <div className="border rounded-xl p-3 text-sm space-y-1">
                     <div className="flex justify-between"><span>Subtotal</span><span>{formatINR(cartSubtotal)}</span></div>
-                    <div className="flex justify-between"><span>Discount</span><span>-{formatINR(discountValue)}</span></div>
-                    <div className="flex justify-between font-semibold"><span>Total</span><span>{formatINR(cartTotal)}</span></div>
+                    <div className="flex justify-between"><span>Discount</span><span>-{formatINR(couponApplied ? Math.round(cartSubtotal * 0.15) : 0)}</span></div>
+                    <div className="flex justify-between font-semibold"><span>Total</span><span>{formatINR(Math.max(cartSubtotal - (couponApplied ? Math.round(cartSubtotal * 0.15) : 0), 0))}</span></div>
                   </div>
 
                   <div className="flex gap-2">
@@ -261,53 +266,67 @@
               </div>
             )}
 
+            {/* Main content */}
             <main className="mx-auto max-w-screen-xl px-4 sm:px-6 py-6 sm:py-8 space-y-6 sm:space-y-8">
+              {/* LANDING */}
               {page === "landing" && (
                 <div className="space-y-6 sm:space-y-8">
-                  <section className="relative overflow-hidden bg-white rounded-2xl shadow-soft p-4 sm:p-6">
-                    <div className="absolute inset-0 bg-gradient-to-r from-indigo-50 via-white to-teal-50 opacity-80"></div>
-                    <div className="relative grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-                      <div>
-                        <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-[var(--primary)] leading-tight">
-                          Healthy Teeth. Happy Dogs.
-                        </h2>
-                        <p className="mt-3 text-base sm:text-lg text-gray-700">
-                          Vet-approved dental kits for wag-worthy smiles. Easy. Safe. Loved by pets & parents.
-                        </p>
-                        <div className="mt-5 flex flex-wrap gap-3">
+                  {/* HERO with background image */}
+                  <section className="relative overflow-hidden rounded-2xl shadow-soft">
+                    <div className="absolute inset-0">
+                      <img src="https://placedog.net/1200/700?id=555" alt="Happy dog background" className="w-full h-full object-cover" />
+                      <div className="absolute inset-0 bg-gradient-to-r from-black/55 via-black/35 to-transparent"></div>
+                    </div>
+                    <div className="relative p-6 sm:p-10 min-h-[320px] md:min-h-[440px] flex items-center">
+                      <div className="max-w-2xl text-white">
+                        <span className="inline-block bg-white/20 text-white font-medium text-xs sm:text-sm px-2 py-1 rounded mb-3">Vet Approved</span>
+                        <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold leading-tight drop-shadow">Healthy Teeth. Happy Dogs.</h2>
+                        <p className="mt-3 text-base sm:text-lg text-white/90">Easy, safe dental kits loved by pets & parents.</p>
+
+                        {/* Centered CTAs on mobile */}
+                        <div className="mt-5 flex flex-wrap justify-center sm:justify-start gap-3">
                           <PrimaryBtn onClick={() => setPage('shop')}>Shop Now</PrimaryBtn>
-                          <OutlineBtn onClick={() => setPage('about')}>About Us</OutlineBtn>
+                          {/* Secondary CTA styled for contrast on dark hero */}
+                          <button onClick={() => setPage('about')}
+                            className="inline-flex items-center justify-center rounded-xl px-4 py-2 font-medium border border-white/70 text-white bg-white/10 hover:bg-white/20 transition">
+                            About Us
+                          </button>
                         </div>
 
+                        {/* Trust badges */}
                         <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3">
-                          <div className="flex items-center gap-2 bg-white border rounded-xl px-3 py-2 text-sm">
-                            <span>⭐</span><span>4.8/5 by 1,200+ pet parents</span>
-                          </div>
-                          <div className="flex items-center gap-2 bg-white border rounded-xl px-3 py-2 text-sm">
-                            <span>✅</span><span>Vet Recommended</span>
-                          </div>
-                          <div className="flex items-center gap-2 bg-white border rounded-xl px-3 py-2 text-sm">
-                            <span>🔁</span><span>30-day money-back</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="relative">
-                        <div className="w-full rounded-2xl overflow-hidden shadow-xl aspect-[16/10]">
-                          <img
-                            src="https://placedog.net/900/650?id=101"
-                            alt="Happy dog hero"
-                            loading="lazy"
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                        <div className="absolute -bottom-3 -right-3 bg-[var(--accent)] text-white text-xs sm:text-sm px-3 py-1.5 rounded-lg shadow">
-                          10,000+ kits sold
+                          <div className="flex items-center gap-2 bg-white/90 text-gray-900 rounded-xl px-3 py-2 text-sm"><span>⭐</span><span>4.8/5 by 1,200+ pet parents</span></div>
+                          <div className="flex items-center gap-2 bg-white/90 text-gray-900 rounded-xl px-3 py-2 text-sm"><span>✅</span><span>Vet Recommended</span></div>
+                          <div className="flex items-center gap-2 bg-white/90 text-gray-900 rounded-xl px-3 py-2 text-sm"><span>🔁</span><span>30-day money-back</span></div>
                         </div>
                       </div>
                     </div>
                   </section>
 
+                  {/* Quick Best Seller card to reduce clicks */}
+                  <section className="bg-white rounded-2xl shadow p-4 sm:p-6">
+                    <h3 className="text-lg font-bold text-[var(--primary)] mb-3">Best Seller</h3>
+                    <div className="flex gap-3">
+                      <img src={CATALOG[0].image} alt={CATALOG[0].name} className="w-24 h-24 rounded-xl object-cover" />
+                      <div className="flex-1">
+                        <div className="font-semibold">{CATALOG[0].name}</div>
+                        <div className="text-sm text-gray-600 mt-1">
+                          <span className="font-semibold">{formatINR(CATALOG[0].price)}</span>
+                          <span className="line-through-muted ml-2">{formatINR(CATALOG[0].compareAt)}</span>
+                          <span className="ml-2 text-[10px] bg-[var(--accent)] text-white px-2 py-0.5 rounded">{pctOff(CATALOG[0].price, CATALOG[0].compareAt)}% OFF</span>
+                        </div>
+                        <div className="mt-2 flex gap-2">
+                          <PrimaryBtn onClick={() => { setPage('address'); setCart(prev => {
+                            const l = prev.find(x=>x.id===CATALOG[0].id);
+                            return l ? prev.map(x=>x.id===CATALOG[0].id?{...x, qty:x.qty+1}:x) : [...prev, {id: CATALOG[0].id, qty:1}];
+                          }); }}>Buy Now</PrimaryBtn>
+                          <OutlineBtn onClick={() => setPage('shop')}>See All</OutlineBtn>
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+
+                  {/* Features */}
                   <section className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
                     {[
                       { title: "Vet Recommended", img: "https://placedog.net/400/300?id=111" },
@@ -323,6 +342,7 @@
                     ))}
                   </section>
 
+                  {/* Testimonials */}
                   <section className="bg-white rounded-2xl shadow-soft p-4 sm:p-6">
                     <div className="flex items-center justify-between mb-3">
                       <h3 className="text-lg sm:text-xl font-bold text-[var(--primary)]">What Pet Parents Say</h3>
@@ -355,6 +375,7 @@
                 </div>
               )}
 
+              {/* ABOUT */}
               {page === "about" && (
                 <section className="bg-white rounded-2xl shadow p-6 max-w-3xl mx-auto text-center">
                   <h2 className="text-2xl font-bold text-[var(--primary)] mb-2">Our Story</h2>
@@ -362,6 +383,7 @@
                 </section>
               )}
 
+              {/* SHOP */}
               {page === "shop" && (
                 <section className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
                   {CATALOG.map(p => (
@@ -394,6 +416,7 @@
                 </section>
               )}
 
+              {/* DETAIL */}
               {page === "detail" && (
                 <section className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                   <div className="rounded-2xl overflow-hidden shadow aspect-[16/10]">
@@ -424,6 +447,7 @@
                 </section>
               )}
 
+              {/* ADDRESS */}
               {page === "address" && (
                 <section className="max-w-md w-full mx-auto bg-white rounded-2xl shadow p-4 sm:p-6">
                   <h2 className="text-lg sm:text-xl font-bold text-[var(--primary)]">Delivery Details</h2>
@@ -439,26 +463,28 @@
                     <div className="border rounded-xl p-3 text-sm space-y-1">
                       <div className="flex justify-between"><span>Items</span><span>{cartCount}</span></div>
                       <div className="flex justify-between"><span>Subtotal</span><span>{formatINR(cartSubtotal)}</span></div>
-                      <div className="flex justify-between"><span>Discount (if coupon)</span><span>-{formatINR(discountValue)}</span></div>
-                      <div className="flex justify-between font-semibold"><span>To Pay</span><span>{formatINR(cartTotal)}</span></div>
+                      <div className="flex justify-between"><span>Discount (if coupon)</span><span>-{formatINR(couponApplied ? Math.round(cartSubtotal * 0.15) : 0)}</span></div>
+                      <div className="flex justify-between font-semibold"><span>To Pay</span><span>{formatINR(Math.max(cartSubtotal - (couponApplied ? Math.round(cartSubtotal * 0.15) : 0), 0))}</span></div>
                     </div>
                     <PrimaryBtn onClick={() => setPage('payment')}>Proceed to Payment</PrimaryBtn>
                   </div>
                 </section>
               )}
 
+              {/* PAYMENT */}
               {page === "payment" && (
                 <section className="max-w-md w-full mx-auto bg-white rounded-2xl shadow p-4 sm:p-6">
                   <div className="mb-4 text-xs sm:text-sm"><span className="font-medium">Address</span> → <span className="font-bold text-[var(--primary)]">Payment</span> → <span className="text-gray-400">Thank You</span></div>
                   <div className="rounded-xl overflow-hidden aspect-[5/2] mb-3">
                     <img src="https://placedog.net/500/200?id=260" alt="Payment visual" loading="lazy" className="w-full h-full object-cover" />
                   </div>
-                  <p className="mb-2">Order Total: <span className="font-semibold">{formatINR(cartTotal)}</span></p>
+                  <p className="mb-2">Order Total: <span className="font-semibold">{formatINR(Math.max(cartSubtotal - (couponApplied ? Math.round(cartSubtotal * 0.15) : 0), 0))}</span></p>
                   <p className="mb-4 text-sm text-gray-600">Pay via UPI, Cards, NetBanking, or Cash on Delivery.</p>
                   <PrimaryBtn onClick={() => setPage('thankyou')}>Pay Now</PrimaryBtn>
                 </section>
               )}
 
+              {/* THANK YOU */}
               {page === "thankyou" && (
                 <section className="text-center bg-white rounded-2xl shadow p-6 sm:p-8 max-w-lg w-full mx-auto">
                   <div className="rounded-XL overflow-hidden aspect-[25/17] mb-4">
@@ -471,10 +497,19 @@
                 </section>
               )}
             </main>
+
+            {/* Sticky CTA (mobile only) */}
+            <div className="fixed bottom-3 inset-x-3 sm:hidden">
+              <button onClick={() => setPage('shop')}
+                className="w-full rounded-xl py-3 text-white bg-[var(--accent)] shadow-lg">
+                Shop Now
+              </button>
+            </div>
           </div>
         );
       }
 
+      // Mount React app
       const root = ReactDOM.createRoot(document.getElementById("root"));
       root.render(<App />);
     </script>
