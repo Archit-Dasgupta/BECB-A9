@@ -274,7 +274,7 @@
                   {/* HERO with background image */}
                   <section className="relative overflow-hidden rounded-2xl shadow-soft">
                     <div className="absolute inset-0">
-                      <img src="https://placedog.net/1200/700?id=555" alt="Happy dog background" className="w-full h-full object-cover" />
+                      <img src="https://placedog.net/1200/700?id=128" alt="Happy dog background" className="w-full h-full object-cover" />
                       <div className="absolute inset-0 bg-gradient-to-r from-black/55 via-black/35 to-transparent"></div>
                     </div>
                     <div className="relative p-6 sm:p-10 min-h-[320px] md:min-h-[440px] flex items-center">
@@ -292,13 +292,36 @@
                             About Us
                           </button>
                         </div>
+                        {/* Trust badges – compact mobile */}
+                        <div className="mt-4 w-full mx-auto max-w-[420px] sm:max-w-none">
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 place-items-center sm:place-items-stretch">
+                            
+                            {/* Rating */}
+                            <div className="flex items-center gap-2 bg-white/70 backdrop-blur
+                                            rounded-lg px-2.5 py-1.5 shadow-sm ring-1 ring-black/10
+                                            w-[90px] sm:w-auto
+                                            sm:rounded-xl sm:px-4 sm:py-3">
+                              <span className="inline-flex h-5 w-5 items-center justify-center
+                                              rounded-full bg-yellow-100 text-yellow-700 text-xs">★</span>
+                              <span className="text-xs sm:text-sm font-medium text-gray-900">
+                                4.8/5 Rating
+                              </span>
+                            </div>
 
-                        {/* Trust badges */}
-                        <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3">
-                          <div className="flex items-center gap-2 bg-white/90 text-gray-900 rounded-xl px-3 py-2 text-sm"><span>⭐</span><span>4.8/5 by 1,200+ pet parents</span></div>
-                          <div className="flex items-center gap-2 bg-white/90 text-gray-900 rounded-xl px-3 py-2 text-sm"><span>✅</span><span>Vet Recommended</span></div>
-                          <div className="flex items-center gap-2 bg-white/90 text-gray-900 rounded-xl px-3 py-2 text-sm"><span>🔁</span><span>30-day money-back</span></div>
+                            {/* Delivery */}
+                            <div className="flex items-center gap-2 bg-white/70 backdrop-blur
+                                            rounded-lg px-2.5 py-1.5 shadow-sm ring-1 ring-black/10
+                                            w-[90px] sm:w-auto
+                                            sm:rounded-xl sm:px-4 sm:py-3">
+                              <span className="inline-flex h-5 w-5 items-center justify-center
+                                              rounded-full bg-green-100 text-green-700 text-xs">$</span>
+                              <span className="text-xs sm:text-sm font-medium text-gray-900">
+                                24-hr Delivery
+                              </span>
+                            </div>
+                          </div>
                         </div>
+
                       </div>
                     </div>
                   </section>
@@ -498,13 +521,17 @@
               )}
             </main>
 
-            {/* Sticky CTA (mobile only) */}
-            <div className="fixed bottom-3 inset-x-3 sm:hidden">
-              <button onClick={() => setPage('shop')}
-                className="w-full rounded-xl py-3 text-white bg-[var(--accent)] shadow-lg">
-                Shop Now
-              </button>
-            </div>
+            {/* Sticky CTA (mobile only, Home page only) */}
+            {page === "landing" && !drawerOpen && (
+              <div className="fixed bottom-3 inset-x-3 sm:hidden z-40">
+                <button
+                  onClick={() => setPage('shop')}
+                  className="w-full rounded-xl py-3 text-white bg-[var(--accent)] shadow-lg"
+                >
+                  Shop Now
+                </button>
+              </div>
+            )}
           </div>
         );
       }
