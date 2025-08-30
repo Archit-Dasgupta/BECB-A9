@@ -109,6 +109,27 @@
           <button onClick={() => setPage(goto)} className="hover:opacity-90">{label}</button>
         );
 
+        // ---------- FeatureCard (for improved Features section) ----------
+        const FeatureCard = ({ title, img, bullets = [], ctaLabel = "Learn more", onClick }) => (
+          <div className="bg-white rounded-2xl shadow hover:shadow-lg transition p-4 flex flex-col">
+            <div className="relative rounded-xl overflow-hidden aspect-[16/9] mb-3">
+              <img src={img} alt={title} loading="lazy" className="w-full h-full object-cover" />
+              <span className="absolute top-2 left-2 text-[10px] bg-black/60 text-white px-2 py-0.5 rounded">{title}</span>
+            </div>
+            <h3 className="font-semibold text-base sm:text-lg text-gray-900">{title}</h3>
+            <ul className="mt-2 space-y-1.5 text-sm text-gray-700 flex-1">
+              {bullets.map((b, i) => (
+                <li key={i} className="flex items-start gap-2">
+                  <span className="mt-0.5 inline-flex h-4 w-4 items-center justify-center rounded-full bg-green-100 text-green-700 text-[10px]">✓</span>
+                  <span>{b}</span>
+                </li>
+              ))}
+            </ul>
+            <button onClick={onClick} className="mt-3 self-start text-xs font-medium text-[var(--primary)] hover:underline">{ctaLabel} →</button>
+          </div>
+        );
+
+        // ---------- Testimonials data ----------
         const TESTIMONIALS = [
           { name: "Aisha & Bruno", text: "Bruno actually lets me brush now. The gel smells good and no more bad breath!", rating: 5 },
           { name: "Rahul & Coco", text: "Easy routine, noticeable difference in 2 weeks. Great value for money.", rating: 5 },
@@ -182,7 +203,6 @@
               </div>
             </header>
 
-            {/* Cart Drawer (unchanged) ... omitted here to keep file concise? No – keep full as before */}
             {/* Drawer */}
             {drawerOpen && (
               <div className="fixed inset-0 z-50">
@@ -295,7 +315,7 @@
                         {/* Trust badges – compact mobile */}
                         <div className="mt-4 w-full mx-auto max-w-[420px] sm:max-w-none">
                           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 place-items-center sm:place-items-stretch">
-                            
+
                             {/* Rating */}
                             <div className="flex items-center gap-2 bg-white/70 backdrop-blur
                                             rounded-lg px-2.5 py-1.5 shadow-sm ring-1 ring-black/10
@@ -326,7 +346,7 @@
                     </div>
                   </section>
 
-                  {/* Quick Best Seller card to reduce clicks */}
+                  {/* Quick Best Seller card */}
                   <section className="bg-white rounded-2xl shadow p-4 sm:p-6">
                     <h3 className="text-lg font-bold text-[var(--primary)] mb-3">Best Seller</h3>
                     <div className="flex gap-3">
@@ -349,22 +369,46 @@
                     </div>
                   </section>
 
-                  {/* Features */}
+                  {/* Features — improved */}
                   <section className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
-                    {[
-                      { title: "Vet Recommended", img: "https://placedog.net/400/300?id=111" },
-                      { title: "Safe & Natural",   img: "https://placedog.net/400/300?id=112" },
-                      { title: "Easy to Use",      img: "https://placedog.net/400/300?id=113" },
-                    ].map(b => (
-                      <div key={b.title} className="bg-white rounded-2xl shadow p-4 hover:shadow-lg transition">
-                        <div className="rounded-xl overflow-hidden aspect-[4/3] mb-3">
-                          <img src={b.img} alt={b.title} loading="lazy" className="w-full h-full object-cover" />
-                        </div>
-                        <h3 className="font-semibold text-base sm:text-lg">{b.title}</h3>
-                      </div>
-                    ))}
+                    <FeatureCard
+                      title="Vet Recommended"
+                      img="https://placedog.net/400/300?id=111"
+                      bullets={[
+                        "Soft silicone brush—gentle on gums",
+                        "Fluoride-free gel, dog-safe flavor",
+                        "Designed with vet inputs",
+                      ]}
+                      ctaLabel="Why vets like it"
+                      onClick={() => setPage('about')}
+                    />
+
+                    <FeatureCard
+                      title="Safe & Natural"
+                      img="https://placedog.net/400/300?id=112"
+                      bullets={[
+                        "No alcohol, SLS, or parabens",
+                        "Food-grade ingredients",
+                        "Lab-tested for daily use",
+                      ]}
+                      ctaLabel="See ingredients"
+                      onClick={() => setPage('detail')}
+                    />
+
+                    <FeatureCard
+                      title="Easy to Use"
+                      img="https://placedog.net/400/300?id=113"
+                      bullets={[
+                        "2-minute routine, 3x/week",
+                        "Step-by-step video guide",
+                        "Visible freshness in ~14 days",
+                      ]}
+                      ctaLabel="View routine"
+                      onClick={() => setPage('shop')}
+                    />
                   </section>
-                  {/* Testimonials */}
+
+                  {/* Testimonials (Google review style with initials) */}
                   <section className="bg-white rounded-2xl shadow-soft p-4 sm:p-6">
                     <div className="flex items-center justify-between mb-3">
                       <h3 className="text-lg sm:text-xl font-bold text-[var(--primary)]">
@@ -401,12 +445,12 @@
                           <div key={idx} className="p-2">
                             {/* Google-review style with initials avatar */}
                             <div className="flex items-start gap-3 border rounded-xl p-4 bg-white shadow-sm">
-                              {/* Initials avatar */}
+                              {/* Initials avatar (two letters) */}
                               <div className="w-10 h-10 rounded-full bg-[var(--primary)] text-white flex items-center justify-center text-sm font-semibold">
                                 {t.name
                                   .split(" ")
                                   .map((w) => w[0])
-                                  .slice(0,1)
+                                  .slice(0,2)
                                   .join("")
                                   .toUpperCase()}
                               </div>
@@ -435,15 +479,12 @@
                         <button
                           key={i}
                           onClick={() => setTIndex(i)}
-                          className={`w-2.5 h-2.5 rounded-full ${
-                            i === tIndex ? "bg-[var(--primary)]" : "bg-gray-300"
-                          }`}
+                          className={`w-2.5 h-2.5 rounded-full ${i === tIndex ? "bg-[var(--primary)]" : "bg-gray-300"}`}
                           aria-label={`Go to slide ${i + 1}`}
                         ></button>
                       ))}
                     </div>
                   </section>
-                
                 </div>
               )}
 
