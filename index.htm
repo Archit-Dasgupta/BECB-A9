@@ -57,17 +57,18 @@
       const formatINR = (n) => "₹" + n.toFixed(0);
       const pctOff = (price, compareAt) => Math.round(((compareAt - price) / compareAt) * 100);
       // Simple dog silhouette icon that scales by size
+      
+      // SizeIcon now loads external SVGs from /img folder
       const SizeIcon = ({ t = 'S' }) => {
-        const sizeClass = t === 'S' ? 'h-4 w-4' : t === 'M' ? 'h-5 w-5' : 'h-6 w-6';
-        return (
-          <svg viewBox="0 0 64 64" className={sizeClass} aria-hidden="true">
-            {/* stylized dog head silhouette */}
-            <path d="M10 26c2-6 8-12 18-12 10 0 14 4 18 8 3 3 7 2 8 4 1 3-2 5-4 6 0 0 2 10-8 16-7 4-15 2-20-2-6-5-7-13-6-20z" fill="currentColor" opacity="0.85"/>
-            <circle cx="38" cy="30" r="2" fill="#fff"/>
-            <path d="M20 18l6 6" stroke="currentColor" strokeWidth="3" strokeLinecap="round" opacity="0.85"/>
-          </svg>
-        );
+        const sizeClass = t === 'S' ? 'h-5 w-5' : t === 'M' ? 'h-6 w-6' : 'h-7 w-7';
+        const srcMap = {
+          S: "img/small-dog.svg",
+          M: "img/medium-dog.svg",
+          L: "img/large-dog.svg",
+        };
+        return <img src={srcMap[t]} alt={`${t} dog`} className={sizeClass} />;
       };
+
 
 
       const CATALOG = [
