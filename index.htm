@@ -19,7 +19,10 @@
     <style>
       .shadow-soft { box-shadow: 0 10px 30px rgba(0,0,0,0.08); }
       .line-through-muted { text-decoration: line-through; color: #9ca3af; }
-    </style>
+    
+      .reveal { opacity: 0; transform: translateY(8px); transition: opacity .5s ease, transform .5s ease; }
+      .reveal.revealed { opacity: 1; transform: translateY(0); }
+</style>
   </head>
   <body class="bg-[var(--bg)] text-[var(--text)]">
     <div id="root"></div>
@@ -142,6 +145,18 @@
           const id = setInterval(nextT, 6500); // slower for readability
           return () => clearInterval(id);
         }, []);
+      // Minimal reveal-on-scroll
+      useEffect(() => {
+        const els = document.querySelectorAll('.reveal');
+        const io = new IntersectionObserver((entries) => {
+          entries.forEach(e => {
+            if (e.isIntersecting) e.target.classList.add('revealed');
+          });
+        }, { threshold: 0.1 });
+        els.forEach(el => io.observe(el));
+        return () => io.disconnect();
+      }, []);
+
 
         // ---------- NEW: Search state (desktop + mobile overlay) ----------
         const [searchOpen, setSearchOpen] = useState(false);
@@ -163,87 +178,88 @@
 
             {/* ---------- UPDATED HEADER WITH SEARCH + COMPACT NAV ---------- */}
             <header className="sticky top-0 z-50 w-full bg-[var(--primary)] text-white shadow">
-              <div className="mx-auto max-w-screen-xl px-4 sm:px-6 py-3 sm:py-4 flex items-center gap-3">
-                {/* Left: Logo (fixed width) */}
-                <div className="w-[160px] shrink-0">
-                  <button
-                    onClick={() => { setPage('landing'); window.scrollTo?.({ top: 0, behavior: 'smooth' }); }}
-                    className="flex items-center gap-2 group"
-                    aria-label="Go to Home"
-                    title="Paw Smile Dental — Home"
-                  >
-                    <svg width="150" height="34" viewBox="0 0 320 72" fill="none" xmlns="http://www.w3.org/2000/svg" className="transition transform group-hover:scale-[1.02]">
-                      <defs>
-                        <linearGradient id="grad" x1="0" y1="0" x2="1" y2="1">
-                          <stop offset="0%" stopColor="#ffffff" stopOpacity="1"/>
-                          <stop offset="100%" stopColor="#dbeafe" stopOpacity="1"/>
-                        </linearGradient>
-                      </defs>
-                      <g>
-                        <circle cx="28" cy="30" r="10" fill="url(#grad)"/>
-                        <circle cx="18" cy="18" r="5" fill="#ffffff" opacity="0.9"/>
-                        <circle cx="28" cy="14" r="5" fill="#ffffff" opacity="0.9"/>
-                        <circle cx="38" cy="18" r="5" fill="#ffffff" opacity="0.9"/>
-                        <path d="M22 36c6-2 16-2 22 0 2 6-2 12-6 12-3 0-5-3-5-6 0 3-2 6-5 6-4 0-8-6-6-12z" fill="#ffffff"/>
-                      </g>
-                      <text x="68" y="44" font-family="Segoe UI, system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif" font-weight="800" font-size="28" fill="#ffffff" letter-spacing="0.5">Paw Smile</text>
-                    </svg>
-                  </button>
-                </div>
+  <div className="mx-auto max-w-screen-xl px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-3">
+    {/* Left: Logo (shrink, no fixed width) */}
+    <div className="shrink-0">
+      <button
+        onClick={() => { setPage('landing'); window.scrollTo?.({ top: 0, behavior: 'smooth' }); }}
+        className="flex items-center gap-2 group"
+        aria-label="Go to Home"
+        title="Paw Smile Dental — Home"
+      >
+        <svg width="150" height="34" viewBox="0 0 320 72" fill="none" xmlns="http://www.w3.org/2000/svg" className="transition transform group-hover:scale-[1.02]">
+          <defs>
+            <linearGradient id="grad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="#ffffff" stopOpacity="1"/>
+              <stop offset="100%" stopColor="#dbeafe" stopOpacity="1"/>
+            </linearGradient>
+          </defs>
+          <g>
+            <circle cx="28" cy="30" r="10" fill="url(#grad)"/>
+            <circle cx="18" cy="18" r="5" fill="#ffffff" opacity="0.9"/>
+            <circle cx="28" cy="14" r="5" fill="#ffffff" opacity="0.9"/>
+            <circle cx="38" cy="18" r="5" fill="#ffffff" opacity="0.9"/>
+            <path d="M22 36c6-2 16-2 22 0 2 6-2 12-6 12-3 0-5-3-5-6 0 3-2 6-5 6-4 0-8-6-6-12z" fill="#ffffff"/>
+          </g>
+          <text x="68" y="44" font-family="Segoe UI, system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif" font-weight="800" font-size="28" fill="#ffffff" letter-spacing="0.5">Paw Smile</text>
+        </svg>
+      </button>
+    </div>
 
-                {/* Center: Compact desktop nav */}
-                <div className="hidden sm:flex flex-1 justify-center">
-                  <nav className="flex items-center gap-2 rounded-full bg-white/10 backdrop-blur px-2 py-1">
-                    <button onClick={() => setPage('landing')} className="px-3 py-1 rounded-full hover:bg-white/20 text-sm font-medium">Home</button>
-                    <button onClick={() => setPage('about')}   className="px-3 py-1 rounded-full hover:bg-white/20 text-sm font-medium">About Us</button>
-                    <button onClick={() => setPage('shop')}    className="px-3 py-1 rounded-full hover:bg-white/20 text-sm font-medium">Shop</button>
-                  </nav>
-                </div>
+    {/* Center: Compact desktop nav truly centered */}
+    <div className="hidden sm:flex flex-1 justify-center">
+      <nav className="flex items-center gap-2 rounded-full bg-white/10 backdrop-blur px-2 py-1">
+        <button onClick={() => setPage('landing')} className="px-3 py-1 rounded-full hover:bg-white/20 text-sm font-medium">Home</button>
+        <button onClick={() => setPage('about')}   className="px-3 py-1 rounded-full hover:bg-white/20 text-sm font-medium">About Us</button>
+        <button onClick={() => setPage('shop')}    className="px-3 py-1 rounded-full hover:bg-white/20 text-sm font-medium">Shop</button>
+        <button onClick={() => setPage('about')}    className="px-3 py-1 rounded-full hover:bg-white/20 text-sm font-medium">Contact</button>
+      </nav>
+    </div>
 
-                {/* Right: Desktop search + cart / Mobile actions */}
-                <div className="flex-1 flex items-center justify-end gap-2">
-                  {/* Desktop search */}
-                  <div className="hidden md:flex items-center rounded-full bg-white/15 border border-white/20 px-3 py-1.5">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="opacity-80">
-                      <path d="M21 21l-4.3-4.3m1.8-4.7a7 7 0 11-14 0 7 7 0 0114 0z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                    <input
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Search products…"
-                      className="bg-transparent placeholder-white/70 text-white text-sm outline-none ml-2 w-36"
-                    />
-                  </div>
+    {/* Right: Desktop search + cart / Mobile actions (shrink, hugs right) */}
+    <div className="shrink-0 flex items-center justify-end gap-2">
+      {/* Desktop search */}
+      <div className="hidden md:flex items-center rounded-full bg-white/15 border border-white/20 px-3 py-1.5">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="opacity-80">
+          <path d="M21 21l-4.3-4.3m1.8-4.7a7 7 0 11-14 0 7 7 0 0114 0z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+        <input
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search products…"
+          className="bg-transparent placeholder-white/70 text-white text-sm outline-none ml-2 w-36"
+        />
+      </div>
 
-                  {/* Mobile search icon */}
-                  <button
-                    onClick={() => setSearchOpen(true)}
-                    className="md:hidden inline-flex items-center justify-center rounded-lg bg-white/10 hover:bg-white/20 px-2.5 py-2"
-                    aria-label="Search"
-                  >
-                    🔎
-                  </button>
+      {/* Mobile search icon */}
+      <button
+        onClick={() => setSearchOpen(true)}
+        className="md:hidden inline-flex items-center justify-center rounded-lg bg-white/10 hover:bg-white/20 px-2.5 py-2"
+        aria-label="Search"
+      >
+        🔎
+      </button>
 
-                  {/* Mobile quick Shop link */}
-                  <button onClick={() => setPage('shop')} className="sm:hidden text-sm bg-white/10 px-3 py-1.5 rounded-lg">
-                    Shop
-                  </button>
+      {/* Mobile quick Shop link */}
+      <button onClick={() => setPage('shop')} className="sm:hidden text-sm bg-white/10 px-3 py-1.5 rounded-lg">
+        Shop
+      </button>
 
-                  {/* Cart */}
-                  <button
-                    onClick={() => setDrawerOpen(true)}
-                    className="relative rounded-xl bg-white/10 px-3 sm:px-4 py-1.5 sm:py-2 hover:bg-white/20 transition text-sm md:text-base"
-                  >
-                    Cart
-                    {cartCount > 0 && (
-                      <span className="absolute -top-2 -right-2 text-[10px] sm:text-xs bg-white text-[var(--primary)] font-bold rounded-full w-5 h-5 sm:w-6 sm:h-6 inline-flex items-center justify-center">
-                        {cartCount}
-                      </span>
-                    )}
-                  </button>
-                </div>
-              </div>
-            </header>
+      {/* Cart */}
+      <button
+        onClick={() => setDrawerOpen(true)}
+        className="relative rounded-xl bg-white/10 px-3 sm:px-4 py-1.5 sm:py-2 hover:bg-white/20 transition text-sm md:text-base"
+      >
+        Cart
+        {cartCount > 0 && (
+          <span className="absolute -top-2 -right-2 text-[10px] sm:text-xs bg-white text-[var(--primary)] font-bold rounded-full w-5 h-5 sm:w-6 sm:h-6 inline-flex items-center justify-center">
+            {cartCount}
+          </span>
+        )}
+      </button>
+    </div>
+  </div>
+</header>
 
             {/* ---------- Mobile Search Overlay ---------- */}
             {searchOpen && (
@@ -382,7 +398,7 @@
             <main className="mx-auto max-w-screen-xl px-4 sm:px-6 py-6 sm:py-8 space-y-6 sm:space-y-8">
               {/* LANDING */}
               {page === "landing" && (
-                <div className="space-y-6 sm:space-y-8">
+                <div className="space-y-8 sm:space-y-10">
                   {/* HERO with background image */}
                   <section className="relative overflow-hidden rounded-2xl shadow-soft">
                     <div className="absolute inset-0">
@@ -409,10 +425,7 @@
                           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 place-items-center sm:place-items-stretch">
 
                             {/* Rating */}
-                            <div className="flex items-center gap-2 bg-white/70 backdrop-blur
-                                            rounded-lg px-2.5 py-1.5 shadow-sm ring-1 ring-black/10
-                                            w-[90px] sm:w-auto
-                                            sm:rounded-xl sm:px-4 sm:py-3">
+                            <div className="flex items-center gap-2 bg-white/70 backdrop-blur rounded-lg px-2.5 py-1.5 shadow-sm ring-1 ring-black/10 w-[90px] sm:w-auto sm:rounded-xl sm:px-4 sm:py-3 transition transform hover:scale-[1.02] hover:shadow-md">
                               <span className="inline-flex h-5 w-5 items-center justify-center
                                               rounded-full bg-yellow-100 text-yellow-700 text-xs">★</span>
                               <span className="text-xs sm:text-sm font-medium text-gray-900">
@@ -421,10 +434,7 @@
                             </div>
 
                             {/* Delivery */}
-                            <div className="flex items-center gap-2 bg-white/70 backdrop-blur
-                                            rounded-lg px-2.5 py-1.5 shadow-sm ring-1 ring-black/10
-                                            w-[90px] sm:w-auto
-                                            sm:rounded-xl sm:px-4 sm:py-3">
+                            <div className="flex items-center gap-2 bg-white/70 backdrop-blur rounded-lg px-2.5 py-1.5 shadow-sm ring-1 ring-black/10 w-[90px] sm:w-auto sm:rounded-xl sm:px-4 sm:py-3 transition transform hover:scale-[1.02] hover:shadow-md">
                               <span className="inline-flex h-5 w-5 items-center justify-center
                                               rounded-full bg-green-100 text-green-700 text-xs">$</span>
                               <span className="text-xs sm:text-sm font-medium text-gray-900">
@@ -461,46 +471,27 @@
                     </div>
                   </section>
 
-                  {/* Features — improved */}
-                  <section className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
-                    <FeatureCard
-                      title="Vet Recommended"
-                      img="https://placedog.net/400/300?id=111"
-                      bullets={[
-                        "Soft silicone brush—gentle on gums",
-                        "Fluoride-free gel, dog-safe flavor",
-                        "Designed with vet inputs",
-                      ]}
-                      ctaLabel="Why vets like it"
-                      onClick={() => setPage('about')}
-                    />
-
-                    <FeatureCard
-                      title="Safe & Natural"
-                      img="https://placedog.net/400/300?id=112"
-                      bullets={[
-                        "No alcohol, SLS, or parabens",
-                        "Food-grade ingredients",
-                        "Lab-tested for daily use",
-                      ]}
-                      ctaLabel="See ingredients"
-                      onClick={() => setPage('detail')}
-                    />
-
-                    <FeatureCard
-                      title="Easy to Use"
-                      img="https://placedog.net/400/300?id=113"
-                      bullets={[
-                        "2-minute routine, 3x/week",
-                        "Step-by-step video guide",
-                        "Visible freshness in ~14 days",
-                      ]}
-                      ctaLabel="View routine"
-                      onClick={() => setPage('shop')}
-                    />
+                  {/* Features — minimal icon cards */}
+                  <section className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 reveal">
+                    {[
+                      { title: "Vet Recommended", icon: "🩺", desc: "Designed with vets; gentle on gums." },
+                      { title: "Safe & Natural",   icon: "🌿", desc: "Food‑grade, fluoride‑free ingredients." },
+                      { title: "Easy Routine",     icon: "⚡", desc: "2‑min routine, 3x/week." },
+                    ].map((f) => (
+                      <div key={f.title} className="bg-white rounded-2xl shadow p-4 hover:shadow-lg transition">
+                        <div className="flex items-center gap-3">
+                          <div className="h-10 w-10 rounded-full bg-[var(--primary)]/10 flex items-center justify-center text-lg">{f.icon}</div>
+                          <div>
+                            <div className="font-semibold text-base">{f.title}</div>
+                            <div className="text-sm text-gray-600">{f.desc}</div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </section>
 
-                  {/* Testimonials (Google review style with initials) */}
+                  {/* Testimonials */}
+ 
                   <section className="bg-white rounded-2xl shadow-soft p-4 sm:p-6">
                     <div className="flex items-center justify-between mb-3">
                       <h3 className="text-lg sm:text-xl font-bold text-[var(--primary)]">
@@ -542,7 +533,7 @@
                                 {t.name
                                   .split(" ")
                                   .map((w) => w[0])
-                                  .slice(0,2)
+                                  .slice(0,1)
                                   .join("")
                                   .toUpperCase()}
                               </div>
