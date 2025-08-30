@@ -56,12 +56,28 @@
 
       const formatINR = (n) => "₹" + n.toFixed(0);
       const pctOff = (price, compareAt) => Math.round(((compareAt - price) / compareAt) * 100);
+      // Simple dog silhouette icon that scales by size
+      const SizeIcon = ({ t = 'S' }) => {
+        const sizeClass = t === 'S' ? 'h-4 w-4' : t === 'M' ? 'h-5 w-5' : 'h-6 w-6';
+        return (
+          <svg viewBox="0 0 64 64" className={sizeClass} aria-hidden="true">
+            {/* stylized dog head silhouette */}
+            <path d="M10 26c2-6 8-12 18-12 10 0 14 4 18 8 3 3 7 2 8 4 1 3-2 5-4 6 0 0 2 10-8 16-7 4-15 2-20-2-6-5-7-13-6-20z" fill="currentColor" opacity="0.85"/>
+            <circle cx="38" cy="30" r="2" fill="#fff"/>
+            <path d="M20 18l6 6" stroke="currentColor" strokeWidth="3" strokeLinecap="round" opacity="0.85"/>
+          </svg>
+        );
+      };
+
 
       const CATALOG = [
-        { id: 1, name: "Complete Dental Care Kit", price: 499, compareAt: 699, stock: 7,  image: "https://placedog.net/600/420?id=201", badge: "Best Seller" },
-        { id: 2, name: "Puppy Gentle Brush + Gel", price: 399, compareAt: 549, stock: 12, image: "https://placedog.net/600/420?id=202", badge: "New" },
-        { id: 3, name: "Advanced Plaque Remover",  price: 599, compareAt: 799, stock: 5,  image: "https://placedog.net/600/420?id=203", badge: "Limited" },
-      ];
+{ id: 1, name: "Complete Dental Care Kit", price: 499, compareAt: 699, stock: 7,  image: "https://placedog.net/600/420?id=201", badge: "Best Seller" , sizes: ['S','M','L'] },
+        { id: 2, name: "Puppy Gentle Brush + Gel", price: 399, compareAt: 549, stock: 12, image: "https://placedog.net/600/420?id=202", badge: "New" , sizes: ['S','M'] },
+        { id: 3, name: "Advanced Plaque Remover",  price: 599, compareAt: 799, stock: 5,  image: "https://placedog.net/600/420?id=203", badge: "Limited" , sizes: ['M','L'] },,
+  { id: 4, name: "Chew Toy Tooth Cleaner", price: 299, compareAt: 399, stock: 20, image: "https://placedog.net/600/420?id=204", badge: "Popular", sizes: ['S','M'] },
+  { id: 5, name: "Herbal Fresh Breath Spray", price: 199, compareAt: 299, stock: 15, image: "https://placedog.net/600/420?id=205", badge: "New", sizes: ['S','M','L'] },
+  { id: 6, name: "Dental Wipes Pack", price: 349, compareAt: 449, stock: 25, image: "https://placedog.net/600/420?id=206", badge: "Value Pack", sizes: ['S','L'] }
+];
 
       function App() {
         const [page, setPage] = useState("landing");
@@ -95,6 +111,10 @@
 
         const [drawerOpen, setDrawerOpen] = useState(false);
 
+        // Size filter state for Shop
+        const [sizeFilter, setSizeFilter] = useState('ALL'); // ALL | S | M | L
+        const [sizeHelpOpen, setSizeHelpOpen] = useState(false);
+
         const addToCart = (id, qty = 1) => {
           setCart(prev => {
             const line = prev.find(l => l.id === id);
@@ -107,6 +127,12 @@
         };
 
         const activeProduct = CATALOG.find(p => p.id === activeId) || CATALOG[0];
+        // Filter products for Shop page based on size
+        const shopProducts = useMemo(() => {
+          if (sizeFilter === 'ALL') return CATALOG;
+          return CATALOG.filter(p => (p.sizes || []).includes(sizeFilter));
+        }, [sizeFilter]);
+
 
         const NavButton = ({ label, goto }) => (
           <button onClick={() => setPage(goto)} className="hover:opacity-90">{label}</button>
@@ -401,6 +427,39 @@
               </div>
             )}
 
+
+            {/* Size Help Modal */}
+            {sizeHelpOpen && (
+              <div className="fixed inset-0 z-50">
+                <div className="absolute inset-0 bg-black/40" onClick={() => setSizeHelpOpen(false)}></div>
+                <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[92%] max-w-md bg-white rounded-2xl shadow p-4 sm:p-6">
+                  <h3 className="text-lg font-bold text-[var(--primary)] mb-1">Need help choosing a size?</h3>
+                  <p className="text-sm text-gray-700 mb-3">Pick your dog’s approximate weight. We’ll show suitable products.</p>
+                  <div className="grid grid-cols-1 gap-2">
+                    <button onClick={() => { setSizeFilter('S'); setSizeHelpOpen(false); }} className="border rounded-xl px-3 py-2 hover:bg-gray-50 flex items-center justify-between">
+                      <div className="font-medium">Small (under 10 kg)</div>
+                      <div className="text-[var(--primary)]"><SizeIcon t='S' /></div>
+                      <div className="text-xs text-gray-600">Toy & small breeds</div>
+                    </button>
+                    <button onClick={() => { setSizeFilter('M'); setSizeHelpOpen(false); }} className="border rounded-xl px-3 py-2 hover:bg-gray-50 flex items-center justify-between">
+                      <div className="font-medium">Medium (10–25 kg)</div>
+                      <div className="text-[var(--primary)]"><SizeIcon t='M' /></div>
+                      <div className="text-xs text-gray-600">Beagle, Cocker, Indie (med)</div>
+                    </button>
+                    <button onClick={() => { setSizeFilter('L'); setSizeHelpOpen(false); }} className="border rounded-xl px-3 py-2 hover:bg-gray-50 flex items-center justify-between">
+                      <div className="font-medium">Large (25+ kg)</div>
+                      <div className="text-[var(--primary)]"><SizeIcon t='L' /></div>
+                      <div className="text-xs text-gray-600">Labrador, GSD, Rottweiler</div>
+                    </button>
+                  </div>
+                  <div className="mt-4 text-xs text-gray-500">Tip: You can change size later using the chips on top.</div>
+                  <div className="mt-3 text-right">
+                    <button onClick={() => setSizeHelpOpen(false)} className="px-3 py-1.5 rounded-lg border">Close</button>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Main content */}
             <main className="mx-auto max-w-screen-xl px-4 sm:px-6 py-6 sm:py-8 space-y-6 sm:space-y-8">
               {/* LANDING */}
@@ -588,12 +647,40 @@
 
               {/* SHOP */}
               {page === "shop" && (
+                <div>
+
+                {/* Size selector */}
+                <div className="mb-5 sm:mb-6 flex flex-wrap justify-center items-center gap-2 text-center">
+                  {['ALL','S','M','L'].map(opt => (
+                    <button
+                      key={opt}
+                      onClick={() => setSizeFilter(opt)}
+                      className={
+                        'px-3 py-1.5 rounded-full text-sm border shrink-0 ' +
+                        (sizeFilter === opt ? 'bg-[var(--primary)] text-white border-[var(--primary)]'
+                                            : 'bg-white text-[var(--primary)] border-[var(--primary)]/30')
+                      }
+                    >
+                      <span className="inline-flex items-center gap-1">
+                        {opt !== 'ALL' && (<span className="text-[var(--primary)]"><SizeIcon t={opt} /></span>)}
+                        <span>{opt === 'ALL' ? 'All' : (opt === 'S' ? 'Small' : opt === 'M' ? 'Medium' : 'Large')}</span>
+                      </span>
+                    </button>
+                  ))}
+                  <button
+                    onClick={() => setSizeHelpOpen(true)}
+                    className="ml-1 px-3 py-1.5 rounded-full text-sm bg-white border border-gray-300 text-gray-700 shrink-0"
+                  >
+                    Need help with size? 🐾
+                  </button>
+                </div>
+
                 <section className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
-                  {CATALOG.map(p => (
+                  {shopProducts.map(p => (
                     <div
                       key={p.id}
                       onClick={(e) => { e.stopPropagation(); setActiveId(p.id); setPage('detail'); }}
-                      className="bg-white rounded-2xl shadow hover:shadow-lg transition p-4 cursor-pointer card elev-1"
+                      className="bg-white rounded-2xl shadow-md hover:shadow-xl transition p-5 cursor-pointer border border-gray-100"
                     >
                       <div className="relative">
                         <div className="rounded-xl overflow-hidden aspect-[4/3] mb-3">
@@ -609,6 +696,7 @@
                         <span className="line-through-muted">{formatINR(p.compareAt)}</span>
                       </div>
                       <div className="text-xs text-red-500 mt-1">Only {p.stock} left</div>
+                      <div className="mt-1 text-[10px] text-gray-600">Sizes: {(p.sizes||[]).join(", ")}</div>
 
                       <div className="mt-3 flex gap-2">
                         <PrimaryBtn onClick={(e) => { e.stopPropagation(); addToCart(p.id); }} className="flex-1">Add to Cart</PrimaryBtn>
@@ -617,6 +705,7 @@
                     </div>
                   ))}
                 </section>
+                </div>
               )}
 
               {/* DETAIL */}
@@ -634,6 +723,10 @@
                       <span className="ml-2 text-[10px] sm:text-xs bg-[var(--accent)] text-white px-2 py-0.5 rounded">{pctOff(activeProduct.price, activeProduct.compareAt)}% OFF</span>
                     </p>
                     <p className="mt-3 text-sm sm:text-base">Everything you need to keep your dog’s teeth clean and healthy.</p>
+
+                    <div className="mt-3 text-xs sm:text-sm text-gray-700">Good for sizes: {(activeProduct.sizes||[]).join(", ")}.
+                      <button onClick={() => { setPage('shop'); setSizeFilter((activeProduct.sizes||[])[0]||'ALL'); }} className="ml-2 underline text-[var(--primary)]">See matching items</button>
+                    </div>
 
                     <div className="mt-4 flex flex-wrap gap-2 sm:gap-3">
                       <PrimaryBtn onClick={() => addToCart(activeProduct.id)}>Add to Cart</PrimaryBtn>
