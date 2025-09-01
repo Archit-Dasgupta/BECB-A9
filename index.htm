@@ -163,13 +163,13 @@ html, body, #root { margin: 0; padding: 0; }
             return line ? prev.map(l => l.id === id ? { ...l, qty: l.qty + qty } : l) : [...prev, { id, qty }];
           });
         
-  // 🔔 Trigger cart button animation
-  const btn = document.querySelector("#cart-btn");
-  if (btn) {
-    btn.classList.add("cart-animate");
-    setTimeout(() => btn.classList.remove("cart-animate"), 650);
-  }
-};
+          // 🔔 Trigger cart button animation
+          const btn = document.querySelector("#cart-btn");
+          if (btn) {
+            btn.classList.add("cart-animate");
+            setTimeout(() => btn.classList.remove("cart-animate"), 650);
+          }
+        };
         const updateQty = (id, qty) => {
           if (qty <= 0) setCart(prev => prev.filter(l => l.id !== id));
           else setCart(prev => prev.map(l => l.id === id ? { ...l, qty } : l));
@@ -347,10 +347,20 @@ html, body, #root { margin: 0; padding: 0; }
               </header>
               {/* Spacer below header — different for landing vs other pages */}
               {page === "landing" ? (
-                <div className="h-[60px] sm:h-[60px]"></div>   // Taller spacer for landing
+                <>
+                  {/* Mobile */}
+                  <div className="block sm:hidden" style={{height: "60px"}}></div>
+                  {/* Tablet/Desktop */}
+                  <div className="hidden sm:block" style={{height: "60px"}}></div>
+                </>
               ) : (
-                <div className="h-[64px] sm:h-[72px]"></div>    // Normal spacer for other pages
-              )}        
+                <>
+                  {/* Mobile */}
+                  <div className="block sm:hidden" style={{height: "64px"}}></div>
+                  {/* Tablet/Desktop */}
+                  <div className="hidden sm:block" style={{height: "72px"}}></div>
+                </>
+              )}
             </div>
 
             {/* ---------- Mobile Search Overlay ---------- */}
@@ -374,7 +384,7 @@ html, body, #root { margin: 0; padding: 0; }
                   </div>
 
                   {/* Results */}
-                  <div className="mt-3 max-h-[60vh] overflow-auto divide-y">
+                  <div className="mt-3 max-h[60vh] overflow-auto divide-y">
                     {filteredProducts.length === 0 && (
                       <div className="py-6 text-center text-sm text-gray-500">No matches</div>
                     )}
@@ -605,7 +615,7 @@ html, body, #root { margin: 0; padding: 0; }
                               {BS_ITEMS.slice(slideIdx * BS_PER_SLIDE, slideIdx * BS_PER_SLIDE + BS_PER_SLIDE).map(p => (
                                 <div key={p.id} className="relative border rounded-2xl p-2 shadow hover:shadow-lg transition bg-white cursor-pointer"
                                   onClick={() => { setActiveId(p.id); navigate('detail'); }}>
-                                  <div className="relative rounded-xl overflow-hidden aspect-[1/1] mb-1">
+                                  <div className="relative rounded-xl overflow-hidden aspect-[4/3] mb-1">
                                     <img src={p.image} alt={p.name} loading="lazy" className="w-full h-full object-cover" />
                                     <span className="absolute top-2 left-2 text-[10px] bg-[var(--primary)] text-white px-2 py-1 rounded-lg">{p.badge}</span>
                                     <span className="absolute top-2 right-2 text-[10px] bg-[var(--accent)] text-white px-2 py-1 rounded-lg">-{pctOff(p.price, p.compareAt)}%</span>
@@ -617,13 +627,14 @@ html, body, #root { margin: 0; padding: 0; }
                                   </div>
                                   <div className="text-[10px] text-gray-600 mt-1">⭐ {p.rating?.toFixed(1) ?? "4.7"} · 🚚 {p.eta ?? "2–4 days"}</div>
 
+                                  <div className="mt-2 flex justify-end">
                                   {qtyInCart(p.id) > 0 ? (
-                                    <div className="absolute bottom-2 right-2 bg-[var(--accent)] text-white rounded-2xl shadow flex items-center overflow-hidden">
+                                    <div className="bg-[var(--accent)] text-white rounded-2xl shadow flex items-center overflow-hidden">
                                       <button
                                         onClick={(e) => { e.stopPropagation(); updateQty(p.id, Math.max(qtyInCart(p.id) - 1, 0)); }}
                                         className="px-2 py-1 text-base leading-none"
                                       >−</button>
-                                      <div className="px-2 py-1 text-sm font-semibold">{qtyInCart(p.id)}</div>
+                                      <div className="px-2 py-1 text-xs font-semibold">{qtyInCart(p.id)}</div>
                                       <button
                                         onClick={(e) => { e.stopPropagation(); addToCart(p.id); }}
                                         className="px-2 py-1 text-base leading-none"
@@ -632,11 +643,12 @@ html, body, #root { margin: 0; padding: 0; }
                                   ) : (
                                     <button
                                       onClick={(e) => { e.stopPropagation(); addToCart(p.id); }}
-                                      className="absolute bottom-2 right-2 text-[10px] font-semibold bg-white text-[var(--accent)] border border-[var(--accent)] px-2 py-0.5 rounded-xl shadow"
+                                      className="text-[11px] font-semibold bg-white text-[var(--accent)] border border-[var(--accent)] px-2 py-0.5 rounded-xl shadow"
                                     >
                                       ADD +
                                     </button>
                                   )}
+                                  </div>
                                 </div>
                               ))}
                             </div>
@@ -650,7 +662,7 @@ html, body, #root { margin: 0; padding: 0; }
                       {CATALOG.slice(0,4).map(p => (
                         <div key={p.id} className="relative border rounded-2xl p-2 shadow hover:shadow-lg transition bg-white cursor-pointer"
                              onClick={() => { setActiveId(p.id); navigate('detail'); }}>
-                          <div className="relative rounded-xl overflow-hidden aspect-[1/1] mb-1">
+                          <div className="relative rounded-xl overflow-hidden aspect-[4/3] mb-1">
                             <img src={p.image} alt={p.name} loading="lazy" className="w-full h-full object-cover" />
                             <span className="absolute top-2 left-2 text-[10px] bg-[var(--primary)] text-white px-2 py-1 rounded-lg">{p.badge}</span>
                             <span className="absolute top-2 right-2 text-[10px] bg-[var(--accent)] text-white px-2 py-1 rounded-lg">-{pctOff(p.price, p.compareAt)}%</span>
@@ -817,34 +829,43 @@ html, body, #root { margin: 0; padding: 0; }
                   </button>
                 </div>
 
-                <section className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
+                {/* SHOP GRID — EXACT SAME TILE FORMAT AS BEST SELLERS (Desktop/Tablet) */}
+                <section className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                   {shopProducts.map(p => (
-                    <div
-                      key={p.id}
-                      onClick={(e) => { e.stopPropagation(); setActiveId(p.id); navigate('detail'); }}
-                      className="bg-white rounded-2xl shadow-md hover:shadow-xl transition p-5 cursor-pointer border border-gray-100"
-                    >
-                      <div className="relative">
-                        <div className="rounded-lg overflow-hidden aspect-[4/3] mb-3">
-                          <img src={p.image} alt={p.name} loading="lazy" className="w-full h-full object-cover product-img" />
+                    <div key={p.id} className="relative border rounded-2xl p-2 shadow hover:shadow-lg transition bg-white cursor-pointer"
+                         onClick={() => { setActiveId(p.id); navigate('detail'); }}>
+                      <div className="relative rounded-xl overflow-hidden aspect-[4/3] mb-1">
+                        <img src={p.image} alt={p.name} loading="lazy" className="w-full h-full object-cover" />
+                        <span className="absolute top-2 left-2 text-[10px] bg-[var(--primary)] text-white px-2 py-1 rounded-lg">{p.badge}</span>
+                        <span className="absolute top-2 right-2 text-[10px] bg-[var(--accent)] text-white px-2 py-1 rounded-lg">-{pctOff(p.price, p.compareAt)}%</span>
+                      </div>
+                      <div className="text-sm font-semibold leading-tight clamp-1">{p.name}</div>
+                      <div className="text-sm text-gray-700">
+                        <span className="font-semibold">{formatINR(p.price)}</span>
+                        <span className="line-through-muted ml-1">{formatINR(p.compareAt)}</span>
+                      </div>
+                      <div className="text-xs text-gray-600 mt-1">⭐ {p.rating?.toFixed(1) ?? "4.7"} · 🚚 {p.eta ?? "2–4 days"}</div>
+
+                      {qtyInCart(p.id) > 0 ? (
+                        <div className="absolute bottom-2 right-2 bg-[var(--accent)] text-white rounded-2xl shadow flex items-center overflow-hidden">
+                          <button
+                            onClick={(e) => { e.stopPropagation(); updateQty(p.id, Math.max(qtyInCart(p.id) - 1, 0)); }}
+                            className="px-2 py-1 text-base leading-none"
+                          >−</button>
+                          <div className="px-2 py-1 text-sm font-semibold">{qtyInCart(p.id)}</div>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); addToCart(p.id); }}
+                            className="px-2 py-1 text-base leading-none"
+                          >+</button>
                         </div>
-                        <span className="absolute top-2 left-2 text-[10px] sm:text-xs bg-[var(--primary)] text-white px-2 py-1 rounded-lg badge badge--primary">{p.badge}</span>
-                        <span className="absolute top-2 right-2 text-[10px] sm:text-xs bg-[var(--accent)] text-white px-2 py-1 rounded-lg badge badge--sale">-{pctOff(p.price, p.compareAt)}%</span>
-                      </div>
-
-                      <h3 className="font-semibold leading-tight text-base sm:text-lg clamp-1">{p.name}</h3>
-                      <div className="text-sm sm:text-base text-gray-600">
-                        <span className="font-semibold price-now">{formatINR(p.price)}</span>{" "}
-                        <span className="line-through-muted">{formatINR(p.compareAt)}</span>
-                      </div>
-                      <div className="text-xs text-red-500 mt-1">Only {p.stock} left</div>
-                      <div className="text-[11px] text-gray-600 mt-1">⭐ {p.rating?.toFixed(1) ?? "4.7"} · 🚚 {p.eta ?? "2–4 days"}</div>
-                      <div className="mt-1 text-[10px] text-gray-600">Sizes: {(p.sizes||[]).join(", ")}</div>
-
-                      <div className="mt-3 flex gap-2">
-                        <PrimaryBtn onClick={(e) => { e.stopPropagation(); addToCart(p.id); }} className="flex-1">Add to Cart</PrimaryBtn>
-                      </div>
-                      <PrimaryBtn onClick={(e) => { e.stopPropagation(); addToCart(p.id); navigate('address'); }} className="mt-2 w-full">Buy Now</PrimaryBtn>
+                      ) : (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); addToCart(p.id); }}
+                          className="absolute bottom-2 right-2 text-[11px] font-semibold bg-white text-[var(--accent)] border border-[var(--accent)] px-2 py-0.5 rounded-xl shadow"
+                        >
+                          ADD +
+                        </button>
+                      )}
                     </div>
                   ))}
                 </section>
@@ -871,10 +892,27 @@ html, body, #root { margin: 0; padding: 0; }
                       <button onClick={() => { navigate('shop'); setSizeFilter((activeProduct.sizes||[])[0]||'ALL'); }} className="ml-2 underline text-[var(--primary)]">See matching items</button>
                     </div>
 
-                    <div className="mt-4 flex flex-wrap gap-2 sm:gap-3">
-                      <PrimaryBtn onClick={() => addToCart(activeProduct.id)}>Add to Cart</PrimaryBtn>
-                      <PrimaryBtn onClick={() => { addToCart(activeProduct.id); navigate('address'); }}>Buy Now</PrimaryBtn>
-                    </div>
+                    {/* Replace Add/Buy buttons with ADD/qty like tiles */}
+                    {qtyInCart(activeProduct.id) > 0 ? (
+                      <div className="bg-[var(--accent)] text-white rounded-2xl shadow flex items-center overflow-hidden w-fit">
+                        <button
+                          onClick={() => updateQty(activeProduct.id, Math.max(qtyInCart(activeProduct.id) - 1, 0))}
+                          className="px-3 py-1.5 text-base leading-none"
+                        >−</button>
+                        <div className="px-3 py-1.5 text-sm font-semibold">{qtyInCart(activeProduct.id)}</div>
+                        <button
+                          onClick={() => addToCart(activeProduct.id)}
+                          className="px-3 py-1.5 text-base leading-none"
+                        >+</button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => addToCart(activeProduct.id)}
+                        className="text-[12px] sm:text-sm font-semibold bg-white text-[var(--accent)] border border-[var(--accent)] px-3 py-1.5 rounded-xl shadow"
+                      >
+                        ADD +
+                      </button>
+                    )}
 
                     <div className="mt-6 grid grid-cols-3 text-xs sm:text-sm">
                       <div className="border-b-2 border-[var(--primary)] pb-2 font-semibold">Description</div>
