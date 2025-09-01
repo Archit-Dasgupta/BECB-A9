@@ -26,7 +26,30 @@
       .reveal { opacity: 0; transform: translateY(8px); transition: opacity .5s ease, transform .5s ease; }
       .reveal.revealed { opacity: 1; transform: translateY(0); }
     </style>
-  </head>
+  
+<style>
+
+/* Glow + Wiggle animation */
+@keyframes glowWiggle {
+  0% { transform: scale(1); box-shadow: 0 0 0px #00ff99; }
+  25% { transform: rotate(-5deg) scale(1.1); box-shadow: 0 0 15px #00ff99; }
+  50% { transform: rotate(5deg) scale(1.1); box-shadow: 0 0 15px #00ff99; }
+  75% { transform: rotate(-5deg) scale(1.05); box-shadow: 0 0 10px #00ff99; }
+  100% { transform: rotate(0deg) scale(1); box-shadow: 0 0 0px transparent; }
+}
+.cart-animate {
+  animation: glowWiggle 0.6s ease-in-out;
+}
+</style>
+
+
+<style>
+/* Force header flush to the very top */
+header, .header, nav { margin-top: 0 !important; top: 0 !important; }
+html, body, #root { margin: 0; padding: 0; }
+</style>
+
+</head>
   <body class="bg-[var(--bg)] text-[var(--text)]">
     <div id="root"></div>
 
@@ -212,12 +235,6 @@
           <div className="min-h-screen">
             {/* STICKY WRAPPER: promo bar + header stick together */}
             <div>
-              {/* Promo bar */}
-              <div className="w-full bg-[var(--dark)] text-white text-center text-xs sm:text-sm py-2 px-3">
-                <span className="font-semibold">Flash Sale</span>: 15% off with <span className="font-mono bg-white text-black px-1 rounded">SMILE15</span> — Ends in {timeLeft}
-              </div>
-
-              {/* Header (non-sticky inside sticky wrapper) */}
               <header className="fixed top-0 left-0 right-0 z-50 w-full bg-[var(--primary)] text-white shadow">
                 <div className="mx-auto max-w-screen-xl px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-3">
                   
@@ -309,10 +326,9 @@
 
                     {/* Cart */}
                     <button
-                      onClick={() => setDrawerOpen(true)}
+                      id="cart-btn" onClick={() => setDrawerOpen(true)}
                       className="relative rounded-lg bg-white/10 px-3 sm:px-4 py-1.5 sm:py-2 hover:bg-white/20 transition text-sm md:text-base"
-                    >
-                      Cart
+                    > Cart
                       {cartCount > 0 && (
                         <span className="absolute -top-2 -right-2 text-[10px] sm:text-xs bg-white text-[var(--primary)] font-bold rounded-full w-5 h-5 sm:w-6 sm:h-6 inline-flex items-center justify-center">
                           {cartCount}
@@ -322,8 +338,12 @@
                   </div>
                 </div>
               </header>
-              {/* Spacer below header — only for non-landing pages */}
-              {page !== "landing" && <div className="h-[64px] sm:h-[72px]"></div>}
+              {/* Spacer below header — different for landing vs other pages */}
+              {page === "landing" ? (
+                <div className="h-[60px] sm:h-[60px]"></div>   // Taller spacer for landing
+              ) : (
+                <div className="h-[64px] sm:h-[72px]"></div>    // Normal spacer for other pages
+              )}        
             </div>
 
             {/* ---------- Mobile Search Overlay ---------- */}
@@ -666,7 +686,7 @@
                       <h3 className="text-lg sm:text-xl font-bold text-[var(--primary)]">
                         What Pet Parents Say
                       </h3>
-                      <div className="hidden sm:flex items-center gap-2">
+                      <div className="flex items-center gap-2">
                         <button
                           className="px-3 py-1.5 rounded-lg border hover:bg-[var(--bg)]"
                           aria-label="Previous"
@@ -995,5 +1015,6 @@
       const root = ReactDOM.createRoot(document.getElementById("root"));
       root.render(<App />);
     </script>
-  </body>
+  
+</body>
 </html>
