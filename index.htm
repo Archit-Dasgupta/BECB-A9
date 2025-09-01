@@ -49,6 +49,30 @@ header, .header, nav { margin-top: 0 !important; top: 0 !important; }
 html, body, #root { margin: 0; padding: 0; }
 </style>
 
+
+    <!-- PATCH: COLLAPSIBLE SIDEBAR -->
+    <style>
+      /* two-col layout only when sidebarOpen */
+      .shop-with-sidebar{display:grid;grid-template-columns:300px minmax(0,1fr);gap:16px;}
+      @media (max-width:768px){.shop-with-sidebar{display:block;}}
+      /* fixed-height filter rows (no growth on check) */
+      .filter-row{border:1px solid #e5e7eb;border-radius:12px;padding:10px 12px;height:44px;display:flex;align-items:center;justify-content:space-between;background:#fff}
+      .filter-row input[type="checkbox"]{width:16px;height:16px}
+      /* mobile drawer */
+      .drawer{transform:translateX(100%);transition:transform .3s ease}
+      .drawer.open{transform:translateX(0)}
+      .apply-bar{position:sticky;bottom:0;left:0;right:0;background:#fff;padding:12px;box-shadow:0 -6px 20px rgba(0,0,0,.08)}
+    </style>
+    <!-- /PATCH -->
+    
+
+    <!-- EQUAL CARD HEIGHTS -->
+    <style>
+      .clamp-1{display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+      .product-card{display:flex;flex-direction:column}
+      .product-card .info{min-height:64px}
+    </style>
+    
 </head>
   <body class="bg-[var(--bg)] text-[var(--text)]">
     <div id="root"></div>
@@ -95,12 +119,12 @@ html, body, #root { margin: 0; padding: 0; }
       };
 
       const CATALOG = [
-        { id: 1, name: "Complete Dental Care Kit", price: 499, compareAt: 699, stock: 7,  image: "https://placedog.net/600/420?id=201", badge: "Best Seller" , sizes: ['S','M','L'], rating: 4.8, eta: "2–3 days" },
-        { id: 2, name: "Puppy Gentle Brush + Gel", price: 399, compareAt: 549, stock: 12, image: "https://placedog.net/600/420?id=202", badge: "New" , sizes: ['S','M'], rating: 4.7, eta: "2–4 days" },
-        { id: 3, name: "Advanced Plaque Remover",  price: 599, compareAt: 799, stock: 5,  image: "https://placedog.net/600/420?id=203", badge: "Limited" , sizes: ['M','L'], rating: 4.9, eta: "2–3 days" },
-        { id: 4, name: "Chew Toy Tooth Cleaner", price: 299, compareAt: 399, stock: 20, image: "https://placedog.net/600/420?id=204", badge: "Popular", sizes: ['S','M'], rating: 4.5, eta: "3–5 days" },
-        { id: 5, name: "Herbal Fresh Breath Spray", price: 199, compareAt: 299, stock: 15, image: "https://placedog.net/600/420?id=205", badge: "New", sizes: ['S','M','L'], rating: 4.6, eta: "2–4 days" },
-        { id: 6, name: "Dental Wipes Pack", price: 349, compareAt: 449, stock: 25, image: "https://placedog.net/600/420?id=206", badge: "Value Pack", sizes: ['S','L'], rating: 4.4, eta: "3–5 days" }
+        { id: 1, name: "Complete Dental Care Kit", type: "Dental Kit", price: 499, compareAt: 699, stock: 7,  image: "https://placedog.net/600/420?id=201", badge: "Best Seller" , sizes: ['S','M','L'], rating: 4.8, eta: "2–3 days" },
+        { id: 2, name: "Puppy Gentle Brush + Gel", type: "Brush", price: 399, compareAt: 549, stock: 12, image: "https://placedog.net/600/420?id=202", badge: "New" , sizes: ['S','M'], rating: 4.7, eta: "2–4 days" },
+        { id: 3, name: "Advanced Plaque Remover",  type: "Strips", price: 599, compareAt: 799, stock: 5,  image: "https://placedog.net/600/420?id=203", badge: "Limited" , sizes: ['M','L'], rating: 4.9, eta: "2–3 days" },
+        { id: 4, name: "Chew Toy Tooth Cleaner", type: "Chew Toy", price: 299, compareAt: 399, stock: 20, image: "https://placedog.net/600/420?id=204", badge: "Popular", sizes: ['S','M'], rating: 4.5, eta: "3–5 days" },
+        { id: 5, name: "Herbal Fresh Breath Spray", type: "Others", price: 199, compareAt: 299, stock: 15, image: "https://placedog.net/600/420?id=205", badge: "New", sizes: ['S','M','L'], rating: 4.6, eta: "2–4 days" },
+        { id: 6, name: "Dental Wipes Pack", type: "Others", price: 349, compareAt: 449, stock: 25, image: "https://placedog.net/600/420?id=206", badge: "Value Pack", sizes: ['S','L'], rating: 4.4, eta: "3–5 days" }
       ];
 
       function App() {
@@ -156,6 +180,19 @@ html, body, #root { margin: 0; padding: 0; }
         // Size filter state for Shop
         const [sizeFilter, setSizeFilter] = useState('ALL'); // ALL | S | M | L
         const [sizeHelpOpen, setSizeHelpOpen] = useState(false);
+        // desktop collapsible sidebar
+        const [sidebarOpen, setSidebarOpen] = useState(false);
+    
+        // base filters
+        const prices = useMemo(() => CATALOG.map(p => p.price), []);
+        const minP = Math.min(...prices), maxP = Math.max(...prices);
+        const [priceCap, setPriceCap] = useState(maxP);
+        const [typesSelected, setTypesSelected] = useState({All:true, Brush:false, Strips:false, 'Dental Kit':false, 'Chew Toy':false, Others:false});
+        const [sizesSelected, setSizesSelected] = useState({S:false, M:false, L:false});
+        const [fastDeliveryOnly, setFastDeliveryOnly] = useState(false);
+        const [sort, setSort] = useState('POPULAR');
+        const [filtersOpen, setFiltersOpen] = useState(false); // mobile drawer
+        
 
         const addToCart = (id, qty = 1) => {
           setCart(prev => {
@@ -177,9 +214,23 @@ html, body, #root { margin: 0; padding: 0; }
 
         const activeProduct = CATALOG.find(p => p.id === activeId) || CATALOG[0];
         const shopProducts = useMemo(() => {
-          if (sizeFilter === 'ALL') return CATALOG;
-          return CATALOG.filter(p => (p.sizes || []).includes(sizeFilter));
-        }, [sizeFilter]);
+          let base = sizeFilter === 'ALL' ? CATALOG : CATALOG.filter(p => (p.sizes || []).includes(sizeFilter));
+          const pickedTypes = Object.entries(typesSelected).filter(([k,v])=>v && k!=='All').map(([k])=>k);
+          if (!(typesSelected.All) && pickedTypes.length>0) base = base.filter(p => pickedTypes.includes(p.type||''));
+          const pickedSizes = Object.entries(sizesSelected).filter(([,v])=>v).map(([k])=>k);
+          if (pickedSizes.length>0) base = base.filter(p => (p.sizes||[]).some(s => pickedSizes.includes(s)));
+          base = base.filter(p => p.price <= priceCap);
+          if (fastDeliveryOnly) base = base.filter(p => {
+            const nums = (p.eta||'').match(/\d+/g) || [];
+            const max = nums.map(n=>+n).reduce((a,b)=>Math.max(a,b), 0);
+            return max>0 ? max <= 3 : true;
+          });
+          const arr = [...base];
+          if (sort === 'PRICE_LOW') arr.sort((a,b)=>a.price-b.price);
+          if (sort === 'PRICE_HIGH') arr.sort((a,b)=>b.price-a.price);
+          if (sort === 'NEW') arr.sort((a,b)=>(b.badge==='New') - (a.badge==='New'));
+          return arr;
+        }, [sizeFilter, typesSelected, sizesSelected, priceCap, fastDeliveryOnly, sort]);
 
         // ---------- Testimonials carousel state ----------
         const TESTIMONIALS = [
@@ -803,72 +854,180 @@ html, body, #root { margin: 0; padding: 0; }
               {page === "shop" && (
                 <div>
 
+                
                 {/* Size selector */}
                 <div className="mb-5 sm:mb-6 flex flex-wrap justify-center items-center gap-2 text-center">
                   {['ALL','S','M','L'].map(opt => (
-                    <button
-                      key={opt}
-                      onClick={() => setSizeFilter(opt)}
-                      className={
-                        'px-3 py-1.5 rounded-full text-sm border shrink-0 ' +
-                        (sizeFilter === opt ? 'bg-[var(--primary)] text-white border-[var(--primary)]'
-                                            : 'bg-white text-[var(--primary)] border-[var(--primary)]/30')
-                      }
-                    >
-                      <span className="inline-flex items-center gap-1">
-                        {opt !== 'ALL' && (<span className="text-[var(--primary)]"><SizeIcon t={opt} /></span>)}
-                        <span>{opt === 'ALL' ? 'All' : (opt === 'S' ? 'Small' : opt === 'M' ? 'Medium' : 'Large')}</span>
-                      </span>
+                    <button key={opt} onClick={() => setSizeFilter(opt)}
+                      className={'px-3 py-1.5 rounded-full text-sm border shrink-0 ' + (sizeFilter===opt ? 'bg-[var(--primary)] text-white border-[var(--primary)]' : 'bg-white text-[var(--primary)] border-[var(--primary)]/30')}>
+                      <span className="inline-flex items-center gap-1">{opt!=='ALL' && <SizeIcon t={opt} />}<span>{opt==='ALL'?'All':(opt==='S'?'Small':opt==='M'?'Medium':'Large')}</span></span>
                     </button>
                   ))}
-                  <button
-                    onClick={() => setSizeHelpOpen(true)}
-                    className="ml-1 px-3 py-1.5 rounded-full text-sm bg-white border border-gray-300 text-gray-700 shrink-0"
-                  >
-                    Need help with size? 🐾
+                  <button onClick={()=>setFiltersOpen(true)} className="sm:hidden ml-1 px-3 py-1.5 rounded-full text-sm bg-white border border-gray-300 text-gray-700">Filters ▾</button>
+                </div>
+    
+
+                
+                {/* Toolbar (desktop only) */}
+                <div className="hidden md:flex items-center justify-between py-2 mb-2">
+                  <button onClick={()=>setSidebarOpen(v=>!v)} className="flex items-center gap-2 text-[var(--primary)]">
+                    <span className="inline-block">≡</span> Filters
                   </button>
+                  <div className="text-sm text-gray-600">{shopProducts.length} products</div>
+                  <div>
+                    <select value={sort} onChange={(e)=>setSort(e.target.value)} className="border rounded-xl px-3 py-1.5 text-sm">
+                      <option value="POPULAR">Popular</option>
+                      <option value="NEW">New</option>
+                      <option value="PRICE_LOW">Price: Low → High</option>
+                      <option value="PRICE_HIGH">Price: High → Low</option>
+                    </select>
+                  </div>
                 </div>
 
-                {/* SHOP GRID — EXACT SAME TILE FORMAT AS BEST SELLERS (Desktop/Tablet) */}
-                <section className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                  {shopProducts.map(p => (
-                    <div key={p.id} className="relative border rounded-2xl p-2 shadow hover:shadow-lg transition bg-white cursor-pointer"
-                         onClick={() => { setActiveId(p.id); navigate('detail'); }}>
-                      <div className="relative rounded-xl overflow-hidden aspect-[4/3] mb-1">
-                        <img src={p.image} alt={p.name} loading="lazy" className="w-full h-full object-cover" />
-                        <span className="absolute top-2 left-2 text-[10px] bg-[var(--primary)] text-white px-2 py-1 rounded-lg">{p.badge}</span>
-                        <span className="absolute top-2 right-2 text-[10px] bg-[var(--accent)] text-white px-2 py-1 rounded-lg">-{pctOff(p.price, p.compareAt)}%</span>
-                      </div>
-                      <div className="text-sm font-semibold leading-tight clamp-1">{p.name}</div>
-                      <div className="text-sm text-gray-700">
-                        <span className="font-semibold">{formatINR(p.price)}</span>
-                        <span className="line-through-muted ml-1">{formatINR(p.compareAt)}</span>
-                      </div>
-                      <div className="text-xs text-gray-600 mt-1">⭐ {p.rating?.toFixed(1) ?? "4.7"} · 🚚 {p.eta ?? "2–4 days"}</div>
-
-                      {qtyInCart(p.id) > 0 ? (
-                        <div className="absolute bottom-2 right-2 bg-[var(--accent)] text-white rounded-2xl shadow flex items-center overflow-hidden">
-                          <button
-                            onClick={(e) => { e.stopPropagation(); updateQty(p.id, Math.max(qtyInCart(p.id) - 1, 0)); }}
-                            className="px-2 py-1 text-base leading-none"
-                          >−</button>
-                          <div className="px-2 py-1 text-sm font-semibold">{qtyInCart(p.id)}</div>
-                          <button
-                            onClick={(e) => { e.stopPropagation(); addToCart(p.id); }}
-                            className="px-2 py-1 text-base leading-none"
-                          >+</button>
+                {/* SHOP layout (sidebar collapsible) */}
+                <div className={sidebarOpen ? 'shop-with-sidebar' : ''}>
+                  {sidebarOpen && (
+                    <aside className="hidden md:block bg-white rounded-2xl shadow p-4 h-fit sticky top-24">
+                      <div className="space-y-5 text-sm">
+                        <div>
+                          <div className="flex items-center justify-between font-semibold">
+                            <span>Price</span>
+                            <span className="text-xs text-gray-500">{'₹'+minP.toFixed(0)} – {'₹'+priceCap.toFixed(0)}</span>
+                          </div>
+                          <input type="range" min={minP} max={maxP} value={priceCap} onChange={(e)=>setPriceCap(Number(e.target.value))} className="w-full accent-[var(--primary)] mt-2" />
+                          <div className="flex justify-between text-xs mt-1"><span>{'₹'+minP.toFixed(0)}</span><span>{'₹'+maxP.toFixed(0)}</span></div>
                         </div>
-                      ) : (
-                        <button
-                          onClick={(e) => { e.stopPropagation(); addToCart(p.id); }}
-                          className="absolute bottom-2 right-2 text-[11px] font-semibold bg-white text-[var(--accent)] border border-[var(--accent)] px-2 py-0.5 rounded-xl shadow"
-                        >
-                          ADD +
-                        </button>
-                      )}
+                        <div>
+                          <div className="font-semibold mb-2">Product Type</div>
+                          {['All','Brush','Strips','Dental Kit','Chew Toy','Others'].map(t => (
+                            <label key={t} className="filter-row">
+                              <span className="flex items-center gap-2">
+                                <input type="checkbox" checked={!!typesSelected[t]}
+                                  onChange={()=>{ if (t==='All') setTypesSelected({All:true, Brush:false, Strips:false, 'Dental Kit':false, 'Chew Toy':false, Others:false}); else setTypesSelected(prev=>{ const next={...prev,[t]:!prev[t], All:false}; const any=Object.entries(next).some(([k,v])=>k!=='All'&&v); if(!any) next.All=true; return next; }); }}
+                                />
+                                {t}
+                              </span>
+                            </label>
+                          ))}
+                        </div>
+                        <div>
+                          <div className="font-semibold mb-2">Breed Size</div>
+                          {['S','M','L'].map(sz => (
+                            <label key={sz} className="filter-row">
+                              <span className="flex items-center gap-2"><input type="checkbox" checked={!!sizesSelected[sz]} onChange={(e)=>setSizesSelected(prev=>({...prev,[sz]:e.target.checked}))} />{sz==='S'?'Small':sz==='M'?'Medium':'Large'}</span>
+                            </label>
+                          ))}
+                        </div>
+                        <div className="filter-row">
+                          <div>Fast delivery (≤ 3 days)</div>
+                          <label className="inline-flex items-center cursor-pointer">
+                            <input type="checkbox" className="sr-only peer" checked={fastDeliveryOnly} onChange={(e)=>setFastDeliveryOnly(e.target.checked)} />
+                            <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-[var(--primary)] relative transition"><div className="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition peer-checked:translate-x-5"></div></div>
+                          </label>
+                        </div>
+                        <button onClick={()=>{ setPriceCap(maxP); setTypesSelected({All:true, Brush:false, Strips:false, 'Dental Kit':false, 'Chew Toy':false, Others:false}); setSizesSelected({S:false,M:false,L:false}); setFastDeliveryOnly(false); }} className="w-full rounded-xl border px-4 py-2 bg-white hover:bg-gray-50">Reset</button>
+                      </div>
+                    </aside>
+                  )}
+
+                  {/* Product grid with compact auto-fill columns */}
+                  <section className="grid [grid-template-columns:repeat(auto-fill,minmax(260px,1fr))] gap-3 md:gap-4 items-start">
+                    {shopProducts.map(p => (
+                      <div key={p.id} className="relative border rounded-2xl p-2 shadow hover:shadow-lg transition bg-white cursor-pointer"
+                           onClick={() => { setActiveId(p.id); navigate('detail'); }}>
+                        <div className="relative rounded-xl overflow-hidden aspect-[4/3] mb-1">
+                          <img src={p.image} alt={p.name} loading="lazy" className="w-full h-full object-cover" />
+                          <span className="absolute top-2 left-2 text-[10px] bg-[var(--primary)] text-white px-2 py-1 rounded-lg">{p.badge}</span>
+                          <span className="absolute top-2 right-2 text-[10px] bg-[var(--accent)] text-white px-2 py-1 rounded-lg">-{pctOff(p.price, p.compareAt)}%</span>
+                        </div>
+                        <div className="text-sm font-semibold leading-tight clamp-1">{p.name}</div>
+                        <div className="text-sm text-gray-700">
+                          <span className="font-semibold">{formatINR(p.price)}</span>
+                          <span className="line-through-muted ml-1">{formatINR(p.compareAt)}</span>
+                        </div>
+                        <div className="text-xs text-gray-600 mt-1">⭐ {p.rating?.toFixed(1) ?? "4.7"} · 🚚 {p.eta ?? "2–4 days"}</div>
+
+                        {qtyInCart(p.id) > 0 ? (
+                          <div className="absolute bottom-2 right-2 bg-[var(--accent)] text-white rounded-2xl shadow flex items-center overflow-hidden">
+                            <button onClick={(e) => { e.stopPropagation(); updateQty(p.id, Math.max(qtyInCart(p.id) - 1, 0)); }} className="px-2 py-1 text-base leading-none">−</button>
+                            <div className="px-2 py-1 text-sm font-semibold">{qtyInCart(p.id)}</div>
+                            <button onClick={(e) => { e.stopPropagation(); addToCart(p.id); }} className="px-2 py-1 text-base leading-none">+</button>
+                          </div>
+                        ) : (
+                          <button onClick={(e) => { e.stopPropagation(); addToCart(p.id); }} className="absolute bottom-2 right-2 text-[11px] font-semibold bg-white text-[var(--accent)] border border-[var(--accent)] px-2 py-0.5 rounded-xl shadow">ADD +</button>
+                        )}
+                      </div>
+                    ))}
+                  </section>
+                </div>
+
+                {/* Mobile drawer (unchanged) */}
+                <div className={filtersOpen ? 'fixed inset-0 z-50' : 'fixed inset-0 z-50 pointer-events-none'}>
+                  <div className={'absolute inset-0 bg-black/40 transition-opacity ' + (filtersOpen ? 'opacity-100' : 'opacity-0')} onClick={()=>setFiltersOpen(false)}></div>
+                  <aside className={'drawer absolute right-0 top-0 h-full w-[92%] sm:w-[420px] bg-white shadow-2xl p-4 ' + (filtersOpen ? 'open' : '')}>
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-base font-bold text-[var(--primary)]">Filters</h3>
+                      <button className="text-gray-500 hover:text-black" onClick={()=>setFiltersOpen(false)}>✕</button>
                     </div>
-                  ))}
-                </section>
+
+                    <div className="space-y-4 text-sm pb-20">
+                      <div>
+                        <div className="flex items-center justify-between font-semibold">
+                          <span>Price</span>
+                          <span className="text-xs text-gray-500">{'₹'+minP.toFixed(0)} – {'₹'+priceCap.toFixed(0)}</span>
+                        </div>
+                        <input type="range" min={minP} max={maxP} value={priceCap} onChange={(e)=>setPriceCap(Number(e.target.value))} className="w-full accent-[var(--primary)] mt-2" />
+                        <div className="flex justify-between text-xs mt-1"><span>{'₹'+minP.toFixed(0)}</span><span>{'₹'+maxP.toFixed(0)}</span></div>
+                      </div>
+                      <div>
+                        <div className="font-semibold mb-2">Product Type</div>
+                        <div className="grid grid-cols-2 gap-2">
+                          {['All','Brush','Strips','Dental Kit','Chew Toy','Others'].map(t => (
+                            <label key={t} className="filter-row">
+                              <span className="flex items-center gap-2">
+                                <input type="checkbox" checked={!!typesSelected[t]}
+                                  onChange={()=>{ if (t==='All') setTypesSelected({All:true, Brush:false, Strips:false, 'Dental Kit':false, 'Chew Toy':false, Others:false}); else setTypesSelected(prev=>{ const next={...prev,[t]:!prev[t], All:false}; const any=Object.entries(next).some(([k,v])=>k!=='All'&&v); if(!any) next.All=true; return next; }); }}
+                                />
+                                {t}
+                              </span>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="font-semibold mb-2">Breed Size</div>
+                        {['S','M','L'].map(sz => (
+                          <label key={sz} className="filter-row mb-2">
+                            <span className="flex items-center gap-2"><input type="checkbox" checked={!!sizesSelected[sz]} onChange={(e)=>setSizesSelected(prev=>({...prev,[sz]:e.target.checked}))} />{sz==='S'?'Small':sz==='M'?'Medium':'Large'}</span>
+                          </label>
+                        ))}
+                      </div>
+                      <div className="filter-row">
+                        <div>Fast delivery (≤ 3 days)</div>
+                        <label className="inline-flex items-center cursor-pointer">
+                          <input type="checkbox" className="sr-only peer" checked={fastDeliveryOnly} onChange={(e)=>setFastDeliveryOnly(e.target.checked)} />
+                          <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-[var(--primary)] relative transition"><div className="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition peer-checked:translate-x-5"></div></div>
+                        </label>
+                      </div>
+                      <div>
+                        <div className="font-semibold mb-2">Sort by</div>
+                        <select value={sort} onChange={(e)=>setSort(e.target.value)} className="w-full border rounded-xl px-3 py-2">
+                          <option value="POPULAR">Popular</option>
+                          <option value="NEW">New</option>
+                          <option value="PRICE_LOW">Price: Low → High</option>
+                          <option value="PRICE_HIGH">Price: High → Low</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div className="apply-bar">
+                      <div className="flex gap-2">
+                        <button onClick={()=>{ setPriceCap(maxP); setTypesSelected({All:true, Brush:false, Strips:false, 'Dental Kit':false, 'Chew Toy':false, Others:false}); setSizesSelected({S:false,M:false,L:false}); setFastDeliveryOnly(false); setSort('POPULAR'); }} className="flex-1 border rounded-lg px-3 py-2">Reset</button>
+                        <button onClick={()=>setFiltersOpen(false)} className="flex-1 rounded-lg px-3 py-2 text-white bg-[var(--accent)]">Apply Filter</button>
+                      </div>
+                    </div>
+                  </aside>
+                </div>
+    
                 </div>
               )}
 
