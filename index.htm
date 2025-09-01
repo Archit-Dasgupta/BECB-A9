@@ -35,7 +35,7 @@
           onClick={onClick}
           disabled={disabled}
           className={
-            "inline-flex items-center justify-center rounded-xl px-3 py-2 sm:px-4 sm:py-2 font-medium text-white bg-[var(--accent)] " +
+            "inline-flex items-center justify-center rounded-lg px-3 py-2 sm:px-4 sm:py-2 font-medium text-white bg-[var(--accent)] " +
             "hover:opacity-90 transition disabled:opacity-50 " + className
           }
         >
@@ -46,7 +46,7 @@
         <button
           onClick={onClick}
           className={
-            "inline-flex items-center justify-center rounded-xl px-3 py-2 sm:px-4 sm:py-2 font-medium border border-[var(--primary)] " +
+            "inline-flex items-center justify-center rounded-lg px-3 py-2 sm:px-4 sm:py-2 font-medium border border-[var(--primary)] " +
             "text-[var(--primary)] bg-white hover:bg-[var(--bg)] transition " + className
           }
         >
@@ -69,12 +69,13 @@
       };
 
       const CATALOG = [
-        { id: 1, name: "Complete Dental Care Kit", price: 499, compareAt: 699, stock: 7,  image: "https://placedog.net/600/420?id=201", badge: "Best Seller" , sizes: ['S','M','L'] },
-        { id: 2, name: "Puppy Gentle Brush + Gel", price: 399, compareAt: 549, stock: 12, image: "https://placedog.net/600/420?id=202", badge: "New" , sizes: ['S','M'] },
-        { id: 3, name: "Advanced Plaque Remover",  price: 599, compareAt: 799, stock: 5,  image: "https://placedog.net/600/420?id=203", badge: "Limited" , sizes: ['M','L'] },
-        { id: 4, name: "Chew Toy Tooth Cleaner", price: 299, compareAt: 399, stock: 20, image: "https://placedog.net/600/420?id=204", badge: "Popular", sizes: ['S','M'] },
-        { id: 5, name: "Herbal Fresh Breath Spray", price: 199, compareAt: 299, stock: 15, image: "https://placedog.net/600/420?id=205", badge: "New", sizes: ['S','M','L'] },
-        { id: 6, name: "Dental Wipes Pack", price: 349, compareAt: 449, stock: 25, image: "https://placedog.net/600/420?id=206", badge: "Value Pack", sizes: ['S','L'] }
+        // `rating` is 1-5, `eta` is a short delivery promise string
+        { id: 1, name: "Complete Dental Care Kit", price: 499, compareAt: 699, stock: 7,  image: "https://placedog.net/600/420?id=201", badge: "Best Seller" , sizes: ['S','M','L'], rating: 4.8, eta: "2–3 days" },
+        { id: 2, name: "Puppy Gentle Brush + Gel", price: 399, compareAt: 549, stock: 12, image: "https://placedog.net/600/420?id=202", badge: "New" , sizes: ['S','M'], rating: 4.7, eta: "2–4 days" },
+        { id: 3, name: "Advanced Plaque Remover",  price: 599, compareAt: 799, stock: 5,  image: "https://placedog.net/600/420?id=203", badge: "Limited" , sizes: ['M','L'], rating: 4.9, eta: "2–3 days" },
+        { id: 4, name: "Chew Toy Tooth Cleaner", price: 299, compareAt: 399, stock: 20, image: "https://placedog.net/600/420?id=204", badge: "Popular", sizes: ['S','M'], rating: 4.5, eta: "3–5 days" },
+        { id: 5, name: "Herbal Fresh Breath Spray", price: 199, compareAt: 299, stock: 15, image: "https://placedog.net/600/420?id=205", badge: "New", sizes: ['S','M','L'], rating: 4.6, eta: "2–4 days" },
+        { id: 6, name: "Dental Wipes Pack", price: 349, compareAt: 449, stock: 25, image: "https://placedog.net/600/420?id=206", badge: "Value Pack", sizes: ['S','L'], rating: 4.4, eta: "3–5 days" }
       ];
 
       function App() {
@@ -160,7 +161,17 @@
           { name: "Rahul & Coco", text: "Easy routine, noticeable difference in 2 weeks. Great value for money.", rating: 5 },
           { name: "Meera & Simba", text: "Vet recommended this. The brush is soft and Coco loves the taste.", rating: 4 },
         ];
-        const [tIndex, setTIndex] = useState(0);
+        
+        
+        const [toast, setToast] = useState("");
+        useEffect(() => {
+          if (!toast) return;
+          const id = setTimeout(() => setToast(""), 2000);
+          return () => clearTimeout(id);
+        }, [toast]);
+
+        
+const [tIndex, setTIndex] = useState(0);
         const nextT = () => setTIndex(i => (i + 1) % TESTIMONIALS.length);
         const prevT = () => setTIndex(i => (i - 1 + TESTIMONIALS.length) % TESTIMONIALS.length);
         useEffect(() => {
@@ -186,7 +197,9 @@
         // ---------- NEW: Search state (desktop + mobile overlay) ----------
         const [searchOpen, setSearchOpen] = useState(false);
         const [searchQuery, setSearchQuery] = useState("");
-        const filteredProducts = useMemo(
+        
+        const qtyInCart = (id) => cart.find(l => l.id === id)?.qty || 0;
+const filteredProducts = useMemo(
           () =>
             CATALOG.filter(p =>
               p.name.toLowerCase().includes(searchQuery.trim().toLowerCase())
@@ -269,7 +282,7 @@
                     <input
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Search products…"
+                      placeholder="Search dog dental kits…"
                       className="bg-transparent placeholder-white/70 text-white text-sm outline-none ml-2 w-36"
                     />
                   </div>
@@ -297,7 +310,7 @@
                   {/* Cart */}
                   <button
                     onClick={() => setDrawerOpen(true)}
-                    className="relative rounded-xl bg-white/10 px-3 sm:px-4 py-1.5 sm:py-2 hover:bg-white/20 transition text-sm md:text-base"
+                    className="relative rounded-lg bg-white/10 px-3 sm:px-4 py-1.5 sm:py-2 hover:bg-white/20 transition text-sm md:text-base"
                   >
                     Cart
                     {cartCount > 0 && (
@@ -319,8 +332,8 @@
                       autoFocus
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Search products…"
-                      className="flex-1 rounded-xl border px-3 py-2 text-sm"
+                      placeholder="Search dog dental kits…"
+                      className="flex-1 rounded-lg border px-3 py-2 text-sm"
                     />
                     <button
                       onClick={() => { setSearchOpen(false); setSearchQuery(""); }}
@@ -370,7 +383,7 @@
                     <button className="text-gray-500 hover:text-black" onClick={() => setDrawerOpen(false)}>✕</button>
                   </div>
 
-                  <div className="rounded-xl border p-3 text-xs sm:text-sm">
+                  <div className="rounded-lg border p-3 text-xs sm:text-sm">
                     {Math.max(FREE_SHIPPING_AT - cartTotal, 0) > 0 ? (
                       <>
                         <div className="mb-2">Add {formatINR(Math.max(FREE_SHIPPING_AT - cartTotal, 0))} more for <span className="font-semibold">FREE Shipping</span></div>
@@ -389,7 +402,7 @@
                       const p = CATALOG.find(x => x.id === line.id);
                       if (!p) return null;
                       return (
-                        <div key={p.id} className="flex items-center gap-3 border rounded-xl p-2">
+                        <div key={p.id} className="flex items-center gap-3 border rounded-lg p-2">
                           <img src={p.image} alt={p.name} width="64" height="64" loading="lazy" className="w-14 h-14 sm:w-16 sm:h-16 object-cover rounded-lg" />
                           <div className="flex-1 min-w-0">
                             <div className="font-medium text-sm sm:text-base truncate">{p.name}</div>
@@ -415,7 +428,7 @@
                     <input
                       value={coupon}
                       onChange={(e) => setCoupon(e.target.value.toUpperCase())}
-                      className="flex-1 border rounded-xl px-3 py-2 text-sm"
+                      className="flex-1 border rounded-lg px-3 py-2 text-sm"
                       placeholder="Coupon code"
                     />
                     <PrimaryBtn onClick={() => setCouponApplied(coupon.trim() === 'SMILE15')} className="text-sm">Apply</PrimaryBtn>
@@ -424,7 +437,7 @@
                     ? <div className="text-sm text-[var(--accent)]">✅ Coupon applied: -{formatINR(Math.round(cartSubtotal * 0.15))}</div>
                     : <div className="text-sm text-gray-500">Tip: Use <span className="font-mono">SMILE15</span> for 15% off</div>}
 
-                  <div className="border rounded-xl p-3 text-sm space-y-1">
+                  <div className="border rounded-lg p-3 text-sm space-y-1">
                     <div className="flex justify-between"><span>Subtotal</span><span>{formatINR(cartSubtotal)}</span></div>
                     <div className="flex justify-between"><span>Discount</span><span>-{formatINR(couponApplied ? Math.round(cartSubtotal * 0.15) : 0)}</span></div>
                     <div className="flex justify-between font-semibold"><span>Total</span><span>{formatINR(Math.max(cartSubtotal - (couponApplied ? Math.round(cartSubtotal * 0.15) : 0), 0))}</span></div>
@@ -447,21 +460,21 @@
             {sizeHelpOpen && (
               <div className="fixed inset-0 z-50">
                 <div className="absolute inset-0 bg-black/40" onClick={() => setSizeHelpOpen(false)}></div>
-                <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[92%] max-w-md bg-white rounded-2xl shadow p-4 sm:p-6">
+                <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[92%] max-w-md bg-white rounded-none shadow p-4 sm:p-6">
                   <h3 className="text-lg font-bold text-[var(--primary)] mb-1">Need help choosing a size?</h3>
                   <p className="text-sm text-gray-700 mb-3">Pick your dog’s approximate weight. We’ll show suitable products.</p>
                   <div className="grid grid-cols-1 gap-2">
-                    <button onClick={() => { setSizeFilter('S'); setSizeHelpOpen(false); }} className="border rounded-xl px-3 py-2 hover:bg-gray-50 flex items-center justify-between">
+                    <button onClick={() => { setSizeFilter('S'); setSizeHelpOpen(false); }} className="border rounded-lg px-3 py-2 hover:bg-gray-50 flex items-center justify-between">
                       <div className="font-medium">Small (under 10 kg)</div>
                       <div className="text-[var(--primary)]"><SizeIcon t='S' /></div>
                       <div className="text-xs text-gray-600">Toy & small breeds</div>
                     </button>
-                    <button onClick={() => { setSizeFilter('M'); setSizeHelpOpen(false); }} className="border rounded-xl px-3 py-2 hover:bg-gray-50 flex items-center justify-between">
+                    <button onClick={() => { setSizeFilter('M'); setSizeHelpOpen(false); }} className="border rounded-lg px-3 py-2 hover:bg-gray-50 flex items-center justify-between">
                       <div className="font-medium">Medium (10–25 kg)</div>
                       <div className="text-[var(--primary)]"><SizeIcon t='M' /></div>
                       <div className="text-xs text-gray-600">Beagle, Cocker, Indie (med)</div>
                     </button>
-                    <button onClick={() => { setSizeFilter('L'); setSizeHelpOpen(false); }} className="border rounded-xl px-3 py-2 hover:bg-gray-50 flex items-center justify-between">
+                    <button onClick={() => { setSizeFilter('L'); setSizeHelpOpen(false); }} className="border rounded-lg px-3 py-2 hover:bg-gray-50 flex items-center justify-between">
                       <div className="font-medium">Large (25+ kg)</div>
                       <div className="text-[var(--primary)]"><SizeIcon t='L' /></div>
                       <div className="text-xs text-gray-600">Labrador, GSD, Rottweiler</div>
@@ -476,103 +489,101 @@
             )}
 
             {/* Main content */}
-            <main className="mx-auto max-w-screen-xl px-4 sm:px-6 py-6 sm:py-8 space-y-6 sm:space-y-8">
+            <main className="mx-auto max-w-screen-xl px-3 sm:px-6 pt-0 pb-5 sm:pb-8 space-y-6 sm:space-y-8">
               {/* LANDING */}
               {page === "landing" && (
-                <div className="space-y-8 sm:space-y-10">
+                <div className="space-y-4 sm:space-y-7">
                   {/* HERO with background image */}
-                  <section className="relative overflow-hidden rounded-2xl shadow-soft">
+                  <section className="relative overflow-hidden shadow-soft rounded-none -mt-0 w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw]">
                     <div className="absolute inset-0">
                       <img src="https://placedog.net/1200/700?id=128" alt="Happy dog background" className="w-full h-full object-cover" />
                       <div className="absolute inset-0 bg-gradient-to-r from-black/55 via-black/35 to-transparent"></div>
                     </div>
-                    <div className="relative p-6 sm:p-10 min-h-[320px] md:min-h-[440px] flex items-center">
+                    <div className="relative p-6 sm:p-10 min-h-[260px] md:min-h-[420px] flex items-center">
                       <div className="max-w-2xl text-white flex flex-col items-center text-center mx-auto sm:mx-0 sm:items-start sm:text-left">
                         <span className="inline-block bg-white/20 text-white font-medium text-xs sm:text-sm px-2 py-1 rounded mb-3">Vet Approved</span>
-                        <h2 className="text-2xl sm:text-4xl md:text-5xl font-extrabold leading-tight drop-shadow">Healthy Teeth. Happy Dogs.</h2>
-                        <p className="mt-2 text-sm sm:mt-3 sm:text-lg text-white/90 max-w-xs sm:max-w-md">Easy, safe dental kits loved by pets & parents.</p>
+                        <h2 className="text-2xl sm:text-4xl md:text-5xl font-extrabold leading-tight drop-shadow">Dog Dental Care Kits</h2>
+                        <p className="mt-2 text-sm sm:mt-3 sm:text-lg text-white/90 max-w-xs sm:max-w-md">
+                          Brush + Enzyme Gel + Chew Toy + Fresh‑Breath Spray. Stop bad breath, prevent plaque—starter kits from ₹499.
+                        </p>
+
+                        {/* Reassurance bar (mobile only) */}
+                        <div className="mt-3 w-full grid grid-cols-3 gap-2 text-[10px] text-black/80">
+                          <div className="rounded-lg bg-white/80 text-center py-1">🚚 Fast delivery</div>
+                          <div className="rounded-lg bg-white/80 text-center py-1">🛡️ Vet‑approved</div>
+                          <div className="rounded-lg bg-white/80 text-center py-1">↩️ Easy returns</div>
+                        </div>
 
                         {/* Centered CTAs on mobile */}
                         <div className="mt-5 flex flex-wrap justify-center sm:justify-start gap-3">
-                          <PrimaryBtn onClick={() => navigate('shop')}>Shop Now</PrimaryBtn>
-                          {/* Secondary CTA styled for contrast on dark hero */}
+                          <PrimaryBtn onClick={() => navigate('shop')}>Shop Dental Kits</PrimaryBtn>
                           <button onClick={() => navigate('about')}
-                            className="inline-flex items-center justify-center rounded-xl px-4 py-2 font-medium border border-white/70 text-white bg-white/10 hover:bg-white/20 transition">
-                            About Us
+                            className="inline-flex items-center justify-center rounded-lg px-4 py-2 font-medium border border-white/70 text-white bg-white/10 hover:bg-white/20 transition">
+                            Why it works
                           </button>
                         </div>
-                        {/* Trust badges – compact mobile */}
-                        <div className="mt-4 w-full mx-auto max-w-[420px] sm:max-w-none">
-                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 place-items-center sm:place-items-stretch">
 
-                            {/* Rating */}
-                            <div className="flex items-center gap-2 bg-white/70 backdrop-blur rounded-lg px-2.5 py-1.5 shadow-sm ring-1 ring-black/10 w-[90px] sm:w-auto sm:rounded-xl sm:px-4 sm:py-3 transition transform hover:scale-[1.02] hover:shadow-md">
-                              <span className="inline-flex h-5 w-5 items-center justify-center
-                                              rounded-full bg-yellow-100 text-yellow-700 text-xs">★</span>
-                              <span className="text-xs sm:text-sm font-medium text-gray-900">
-                                4.8/5 Rating
-                              </span>
+                        {/* What we sell chips */}
+                        <div className="mt-4 hidden grid-cols-2 gap-2 w-full max-w-xs sm:max-w-md">
+                          {["Toothbrush & Gel","Chew toy cleaners","Fresh‑breath spray","Dental wipes"].map((t) => (
+                            <div key={t} className="text-[11px] sm:text-xs bg-white/70 text-gray-900 rounded-lg px-2 py-1 text-center">
+                              {t}
                             </div>
-
-                            {/* Delivery */}
-                            <div className="flex items-center gap-2 bg-white/70 backdrop-blur rounded-lg px-2.5 py-1.5 shadow-sm ring-1 ring-black/10 w-[90px] sm:w-auto sm:rounded-xl sm:px-4 sm:py-3 transition transform hover:scale-[1.02] hover:shadow-md">
-                              <span className="inline-flex h-5 w-5 items-center justify-center
-                                              rounded-full bg-green-100 text-green-700 text-xs">$</span>
-                              <span className="text-xs sm:text-sm font-medium text-gray-900">
-                                24-hr Delivery
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-
-                      </div>
-                    </div>
-                  </section>
-
-                  {/* Quick Best Seller card */}
-                  <section className="bg-white rounded-2xl shadow p-4 sm:p-6">
-                    <h3 className="text-lg font-bold text-[var(--primary)] mb-3">Best Seller</h3>
-                    <div className="flex gap-3">
-                      <img src={CATALOG[0].image} alt={CATALOG[0].name} className="w-24 h-24 rounded-xl object-cover" />
-                      <div className="flex-1">
-                        <div className="font-semibold">{CATALOG[0].name}</div>
-                        <div className="text-sm text-gray-600 mt-1">
-                          <span className="font-semibold">{formatINR(CATALOG[0].price)}</span>
-                          <span className="line-through-muted ml-2">{formatINR(CATALOG[0].compareAt)}</span>
-                          <span className="ml-2 text-[10px] bg-[var(--accent)] text-white px-2 py-0.5 rounded">{pctOff(CATALOG[0].price, CATALOG[0].compareAt)}% OFF</span>
-                        </div>
-                        <div className="mt-2 flex gap-2">
-                          <PrimaryBtn onClick={() => { navigate('address'); setCart(prev => {
-                            const l = prev.find(x=>x.id===CATALOG[0].id);
-                            return l ? prev.map(x=>x.id===CATALOG[0].id?{...x, qty:x.qty+1}:x) : [...prev, {id: CATALOG[0].id, qty:1}];
-                          }); }}>Buy Now</PrimaryBtn>
-                          <OutlineBtn onClick={() => navigate('shop')}>See All</OutlineBtn>
+                          ))}
                         </div>
                       </div>
                     </div>
                   </section>
 
-                  {/* Features — minimal icon cards */}
-                  <section className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 reveal">
-                    {[
-                      { title: "Vet Recommended", icon: "🩺", desc: "Designed with vets; gentle on gums." },
-                      { title: "Safe & Natural",   icon: "🌿", desc: "Food‑grade, fluoride‑free ingredients." },
-                      { title: "Easy Routine",     icon: "⚡", desc: "2‑min routine, 3x/week." },
-                    ].map((f) => (
-                      <div key={f.title} className="bg-white rounded-2xl shadow p-4 hover:shadow-lg transition">
-                        <div className="flex items-center gap-3">
-                          <div className="h-10 w-10 rounded-full bg-[var(--primary)]/10 flex items-center justify-center text-lg">{f.icon}</div>
-                          <div>
-                            <div className="font-semibold text-base">{f.title}</div>
-                            <div className="text-sm text-gray-600">{f.desc}</div>
+                  {/* Quick Best Seller card — pulled up on mobile with negative margin */
+                  
+                  /* Best Sellers — static grid */
+                  <section className="bg-white p-3 sm:p-4 -mt-4 sm:mt-0 rounded-2xl shadow-soft">
+                    <h3 className="text-lg font-bold text-[var(--primary)] mb-3">Best Sellers</h3>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                      {CATALOG.slice(0,4).map(p => (
+                        <div key={p.id} className="relative border rounded-2xl p-2 shadow hover:shadow-lg transition bg-white cursor-pointer"
+                             onClick={() => { setActiveId(p.id); navigate('detail'); }}>
+                          <div className="relative rounded-xl overflow-hidden aspect-[4/5] mb-1">
+                            <img src={p.image} alt={p.name} loading="lazy" className="w-full h-full object-cover" />
+                            <span className="absolute top-2 left-2 text-[10px] bg-[var(--primary)] text-white px-2 py-1 rounded-lg">{p.badge}</span>
+                            <span className="absolute top-2 right-2 text-[10px] bg-[var(--accent)] text-white px-2 py-1 rounded-lg">-{pctOff(p.price, p.compareAt)}%</span>
                           </div>
+                          <div className="text-xs sm:text-sm font-semibold leading-tight clamp-1">{p.name}</div>
+                          <div className="text-xs sm:text-sm text-gray-700">
+                            <span className="font-semibold">{formatINR(p.price)}</span>
+                            <span className="line-through-muted ml-1">{formatINR(p.compareAt)}</span>
+                          </div>
+                          <div className="text-[10px] text-gray-600 mt-1">⭐ {p.rating?.toFixed(1) ?? "4.7"} · 🚚 {p.eta ?? "2–4 days"}</div>
+
+                          {qtyInCart(p.id) > 0 ? (
+                            <div className="absolute bottom-2 right-2 bg-[var(--accent)] text-white rounded-2xl shadow flex items-center overflow-hidden">
+                              <button
+                                onClick={(e) => { e.stopPropagation(); updateQty(p.id, Math.max(qtyInCart(p.id) - 1, 0)); setToast('✔ Updated'); }}
+                                className="px-2 py-1 text-base leading-none"
+                              >−</button>
+                              <div className="px-2 py-1 text-sm font-semibold">{qtyInCart(p.id)}</div>
+                              <button
+                                onClick={(e) => { e.stopPropagation(); addToCart(p.id); setToast('✔ Added to cart'); }}
+                                className="px-2 py-1 text-base leading-none"
+                              >+</button>
+                            </div>
+                          ) : (
+                            <button
+                              onClick={(e) => { e.stopPropagation(); addToCart(p.id); setToast('✔ Added to cart'); }}
+                              className="absolute bottom-2 right-2 text-[10px] font-semibold bg-white text-[var(--accent)] border border-[var(--accent)] px-2 py-0.5 rounded-xl shadow"
+                            >
+                              ADD +
+                            </button>
+                          )}
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </section>
 
-                  {/* Testimonials */}
-                  <section className="bg-white rounded-2xl shadow-soft p-4 sm:p-6">
+                  /* Testimonials
+ — moved above Features and pulled a touch up on mobile */}
+                  <section className="bg-white rounded-2xl shadow-soft p-4 sm:p-6 -mt-2 sm:mt-0">
                     <div className="flex items-center justify-between mb-3">
                       <h3 className="text-lg sm:text-xl font-bold text-[var(--primary)]">
                         What Pet Parents Say
@@ -607,7 +618,7 @@
                         {TESTIMONIALS.map((t, idx) => (
                           <div key={idx} className="p-2">
                             {/* Google-review style with initials avatar */}
-                            <div className="flex items-start gap-3 border rounded-xl p-4 bg-white shadow-sm">
+                            <div className="flex items-start gap-3 border rounded-lg p-4 bg-white shadow-sm">
                               {/* Initials avatar (two letters) */}
                               <div className="w-10 h-10 rounded-full bg-[var(--primary)] text-white flex items-center justify-center text-sm font-semibold">
                                 {t.name
@@ -647,6 +658,25 @@
                         ></button>
                       ))}
                     </div>
+                  </section>
+
+                  {/* Features — minimal icon cards */}
+                  <section className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 reveal">
+                    {[
+                      { title: "Vet Recommended", icon: "🩺", desc: "Designed with vets; gentle on gums." },
+                      { title: "Safe & Natural",   icon: "🌿", desc: "Food‑grade, fluoride‑free ingredients." },
+                      { title: "Easy Routine",     icon: "⚡", desc: "2‑min routine, 3x/week." },
+                    ].map((f) => (
+                      <div key={f.title} className="bg-white rounded-2xl shadow p-4 hover:shadow-lg transition">
+                        <div className="flex items-center gap-3">
+                          <div className="h-10 w-10 rounded-full bg-[var(--primary)]/10 flex items-center justify-center text-lg">{f.icon}</div>
+                          <div>
+                            <div className="font-semibold text-base">{f.title}</div>
+                            <div className="text-sm text-gray-600">{f.desc}</div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </section>
                 </div>
               )}
@@ -697,7 +727,7 @@
                       className="bg-white rounded-2xl shadow-md hover:shadow-xl transition p-5 cursor-pointer border border-gray-100"
                     >
                       <div className="relative">
-                        <div className="rounded-xl overflow-hidden aspect-[4/3] mb-3">
+                        <div className="rounded-lg overflow-hidden aspect-[4/3] mb-3">
                           <img src={p.image} alt={p.name} loading="lazy" className="w-full h-full object-cover product-img" />
                         </div>
                         <span className="absolute top-2 left-2 text-[10px] sm:text-xs bg-[var(--primary)] text-white px-2 py-1 rounded-lg badge badge--primary">{p.badge}</span>
@@ -710,10 +740,11 @@
                         <span className="line-through-muted">{formatINR(p.compareAt)}</span>
                       </div>
                       <div className="text-xs text-red-500 mt-1">Only {p.stock} left</div>
+                      <div className="text-[11px] text-gray-600 mt-1">⭐ {p.rating?.toFixed(1) ?? "4.7"} · 🚚 {p.eta ?? "2–4 days"}</div>
                       <div className="mt-1 text-[10px] text-gray-600">Sizes: {(p.sizes||[]).join(", ")}</div>
 
                       <div className="mt-3 flex gap-2">
-                        <PrimaryBtn onClick={(e) => { e.stopPropagation(); addToCart(p.id); }} className="flex-1">Add to Cart</PrimaryBtn>
+                        <PrimaryBtn onClick={(e) => { e.stopPropagation(); addToCart(p.id); setToast('✔ Added to cart'); }} className="flex-1">Add to Cart</PrimaryBtn>
                       </div>
                       <PrimaryBtn onClick={(e) => { e.stopPropagation(); addToCart(p.id); navigate('address'); }} className="mt-2 w-full">Buy Now</PrimaryBtn>
                     </div>
@@ -763,14 +794,14 @@
                   <h2 className="text-lg sm:text-xl font-bold text-[var(--primary)]">Delivery Details</h2>
                   <div className="text-xs mt-1 text-gray-600">Tip: Add more items and apply SMILE15 at checkout to save more.</div>
                   <div className="mt-4 space-y-3">
-                    <input className="w-full rounded-xl border px-3 py-2 text-sm sm:text-base" placeholder="Full Name" />
-                    <input className="w-full rounded-xl border px-3 py-2 text-sm sm:text-base" placeholder="Mobile Number" />
-                    <input className="w-full rounded-xl border px-3 py-2 text-sm sm:text-base" placeholder="Address" />
+                    <input className="w-full rounded-lg border px-3 py-2 text-sm sm:text-base" placeholder="Full Name" />
+                    <input className="w-full rounded-lg border px-3 py-2 text-sm sm:text-base" placeholder="Mobile Number" />
+                    <input className="w-full rounded-lg border px-3 py-2 text-sm sm:text-base" placeholder="Address" />
                     <div className="grid grid-cols-2 gap-3">
-                      <input className="rounded-xl border px-3 py-2 text-sm sm:text-base" placeholder="City" />
-                      <input className="rounded-xl border px-3 py-2 text-sm sm:text-base" placeholder="Pin Code" />
+                      <input className="rounded-lg border px-3 py-2 text-sm sm:text-base" placeholder="City" />
+                      <input className="rounded-lg border px-3 py-2 text-sm sm:text-base" placeholder="Pin Code" />
                     </div>
-                    <div className="border rounded-xl p-3 text-sm space-y-1">
+                    <div className="border rounded-lg p-3 text-sm space-y-1">
                       <div className="flex justify-between"><span>Items</span><span>{cartCount}</span></div>
                       <div className="flex justify-between"><span>Subtotal</span><span>{formatINR(cartSubtotal)}</span></div>
                       <div className="flex justify-between"><span>Discount (if coupon)</span><span>-{formatINR(couponApplied ? Math.round(cartSubtotal * 0.15) : 0)}</span></div>
@@ -781,7 +812,7 @@
                 </section>
               )}
 
-              {/* PAYMENT (refined visuals, same flow) */}
+              {/* PAYMENT (visuals unchanged functionally) */}
               {page === "payment" && (
                 <section className="max-w-md w-full mx-auto bg-white rounded-2xl shadow p-4 sm:p-6">
                   <div className="mb-3 flex items-center justify-between">
@@ -796,7 +827,7 @@
                     </div>
                   </div>
 
-                  <div className="rounded-xl overflow-hidden aspect-[5/2] mb-3">
+                  <div className="rounded-lg overflow-hidden aspect-[5/2] mb-3">
                     <img src="https://placedog.net/500/200?id=260" alt="Payment visual" loading="lazy" className="w-full h-full object-cover" />
                   </div>
 
@@ -811,7 +842,7 @@
                   {/* Payment method selector (visual only) */}
                   <div className="space-y-2 mb-4">
                     {["UPI","Card","NetBanking","COD"].map((m) => (
-                      <label key={m} className={`flex items-center justify-between border rounded-xl px-3 py-2 cursor-pointer ${payMethod===m ? "border-[var(--primary)] bg-blue-50/40" : "border-gray-200"}`}>
+                      <label key={m} className={`flex items-center justify-between border rounded-lg px-3 py-2 cursor-pointer ${payMethod===m ? "border-[var(--primary)] bg-blue-50/40" : "border-gray-200"}`}>
                         <div className="flex items-center gap-2">
                           <input type="radio" name="method" checked={payMethod===m} onChange={() => setPayMethod(m)} />
                           <span className="text-sm font-medium">{m}</span>
@@ -824,16 +855,16 @@
                   {/* Minimal dynamic field mock (no functional processing) */}
                   {payMethod === "UPI" && (
                     <div className="mb-4">
-                      <input className="w-full rounded-xl border px-3 py-2 text-sm" placeholder="Enter UPI ID (e.g., name@bank)" />
+                      <input className="w-full rounded-lg border px-3 py-2 text-sm" placeholder="Enter UPI ID (e.g., name@bank)" />
                       <div className="text-xs text-gray-500 mt-1">We’ll open your UPI app to confirm.</div>
                     </div>
                   )}
                   {payMethod === "Card" && (
                     <div className="mb-4 grid grid-cols-1 gap-2">
-                      <input className="rounded-xl border px-3 py-2 text-sm" placeholder="Card number" />
+                      <input className="rounded-lg border px-3 py-2 text-sm" placeholder="Card number" />
                       <div className="grid grid-cols-2 gap-2">
-                        <input className="rounded-xl border px-3 py-2 text-sm" placeholder="MM/YY" />
-                        <input className="rounded-xl border px-3 py-2 text-sm" placeholder="CVV" />
+                        <input className="rounded-lg border px-3 py-2 text-sm" placeholder="MM/YY" />
+                        <input className="rounded-lg border px-3 py-2 text-sm" placeholder="CVV" />
                       </div>
                     </div>
                   )}
@@ -882,12 +913,21 @@
               <div className="fixed bottom-3 inset-x-3 sm:hidden z-40">
                 <button
                   onClick={() => navigate('shop')}
-                  className="w-full rounded-xl py-3 text-white bg-[var(--accent)] shadow-lg"
+                  className="w-full rounded-lg py-3 text-white bg-[var(--accent)] shadow-lg"
                 >
-                  Shop Now
+                  Shop Dental Kits
                 </button>
               </div>
             )}
+
+            {toast && (
+              <div className="fixed bottom-16 inset-x-0 flex justify-center z-50">
+                <div className="bg-[var(--primary)] text-white px-4 py-2 rounded-full shadow-lg text-sm">
+                  {toast}
+                </div>
+              </div>
+            )}
+
           </div>
         );
       }
