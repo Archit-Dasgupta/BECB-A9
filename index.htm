@@ -118,7 +118,39 @@ html, body, #root { margin: 0; padding: 0; }
         return <img src={srcMap[t]} alt={`${t} dog`} className={sizeClass} />;
       };
 
-      const CATALOG = [
+      
+
+      // Simple funnel icon used for Filters (desktop + mobile)
+      const FilterIcon = ({ className = "w-4 h-4" }) => (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" strokeWidth="2"
+             className={className}>
+          <path d="M3 6h18M6 12h12M10 18h4" strokeLinecap="round" strokeLinejoin="round"></path>
+        </svg>
+      );
+
+      // Circular dog size control used on both mobile and desktop
+      const SizeCircle = ({ code, label, active, onClick }) => (
+        <button onClick={onClick}
+                className={
+                  "flex flex-col items-center w-16 " +
+                  (active ? "text-[var(--primary)]" : "text-gray-700")
+                }>
+          <span className={
+                "w-14 h-14 rounded-full border flex items-center justify-center " +
+                (active ? "bg-[var(--primary)]/10 border-[var(--primary)]" : "bg-white border-gray-300")
+              }>
+            {code === 'ALL' ? (
+              <span className="text-xs font-semibold">All</span>
+            ) : (
+              <SizeIcon t={code} />
+            )}
+          </span>
+          <span className="mt-1 text-xs">{label}</span>
+        </button>
+      );
+
+    const CATALOG = [
         { id: 1, name: "Complete Dental Care Kit", type: "Dental Kit", price: 499, compareAt: 699, stock: 7,  image: "https://placedog.net/600/420?id=201", badge: "Best Seller" , sizes: ['S','M','L'], rating: 4.8, eta: "2–3 days" },
         { id: 2, name: "Puppy Gentle Brush + Gel", type: "Brush", price: 399, compareAt: 549, stock: 12, image: "https://placedog.net/600/420?id=202", badge: "New" , sizes: ['S','M'], rating: 4.7, eta: "2–4 days" },
         { id: 3, name: "Advanced Plaque Remover",  type: "Strips", price: 599, compareAt: 799, stock: 5,  image: "https://placedog.net/600/420?id=203", badge: "Limited" , sizes: ['M','L'], rating: 4.9, eta: "2–3 days" },
@@ -855,36 +887,59 @@ html, body, #root { margin: 0; padding: 0; }
                 <div>
 
                 
-                {/* Size selector */}
-                <div className="mb-5 sm:mb-6 flex flex-wrap justify-center items-center gap-2 text-center">
-                  {['ALL','S','M','L'].map(opt => (
-                    <button key={opt} onClick={() => setSizeFilter(opt)}
-                      className={'px-3 py-1.5 rounded-full text-sm border shrink-0 ' + (sizeFilter===opt ? 'bg-[var(--primary)] text-white border-[var(--primary)]' : 'bg-white text-[var(--primary)] border-[var(--primary)]/30')}>
-                      <span className="inline-flex items-center gap-1">{opt!=='ALL' && <SizeIcon t={opt} />}<span>{opt==='ALL'?'All':(opt==='S'?'Small':opt==='M'?'Medium':'Large')}</span></span>
-                    </button>
-                  ))}
-                  <button onClick={()=>setFiltersOpen(true)} className="sm:hidden ml-1 px-3 py-1.5 rounded-full text-sm bg-white border border-gray-300 text-gray-700">Filters ▾</button>
-                </div>
-    
-
                 
-                {/* Toolbar (desktop only) */}
-                <div className="hidden md:flex items-center justify-between py-2 mb-2">
-                  <button onClick={()=>setSidebarOpen(v=>!v)} className="flex items-center gap-2 text-[var(--primary)]">
-                    <span className="inline-block">≡</span> Filters
+                {/* Mobile: Filters + Sort row */}
+                <div className="md:hidden mb-3 flex items-center justify-between gap-2">
+                  <button onClick={()=>setFiltersOpen(true)}
+                          className="flex items-center gap-2 rounded-full bg-white border px-3 py-1.5 shadow">
+                    <FilterIcon className="w-4 h-4" />
+                    <span className="text-sm">Filters</span>
                   </button>
-                  <div className="text-sm text-gray-600">{shopProducts.length} products</div>
-                  <div>
-                    <select value={sort} onChange={(e)=>setSort(e.target.value)} className="border rounded-xl px-3 py-1.5 text-sm">
+
+                  <div className="flex-1"></div>
+
+                  <div className="relative">
+                    <select value={sort} onChange={(e)=>setSort(e.target.value)}
+                            className="appearance-none rounded-full border px-3 py-1.5 pr-8 text-sm bg-white">
                       <option value="POPULAR">Popular</option>
                       <option value="NEW">New</option>
                       <option value="PRICE_LOW">Price: Low → High</option>
                       <option value="PRICE_HIGH">Price: High → Low</option>
                     </select>
+                    <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2">▾</span>
+                  </div>
+                </div>
+
+                {/* Circular dog-size selector (both views) */}
+                <div className="mb-5 sm:mb-6 flex flex-wrap justify-center items-center gap-4 text-center">
+                  <SizeCircle code="ALL" label="All"    active={sizeFilter==='ALL'} onClick={()=>setSizeFilter('ALL')} />
+                  <SizeCircle code="S"   label="Small"  active={sizeFilter==='S'}   onClick={()=>setSizeFilter('S')}   />
+                  <SizeCircle code="M"   label="Medium" active={sizeFilter==='M'}   onClick={()=>setSizeFilter('M')}   />
+                  <SizeCircle code="L"   label="Large"  active={sizeFilter==='L'}   onClick={()=>setSizeFilter('L')}   />
+                </div>
+
+                {/* Toolbar (desktop only) — pill style & prominent */}
+                <div className="hidden md:flex items-center justify-between py-2 mb-2">
+                  <button onClick={()=>setSidebarOpen(v=>!v)}
+                          className="inline-flex items-center gap-2 rounded-full border px-4 py-2 bg-white shadow hover:bg-[var(--bg)]">
+                    <FilterIcon className="w-5 h-5" />
+                    <span className="font-medium">Filters</span>
+                  </button>
+                  <div className="text-sm text-gray-600">{shopProducts.length} products</div>
+                  <div className="relative">
+                    <select value={sort} onChange={(e)=>setSort(e.target.value)}
+                            className="appearance-none rounded-full border px-4 py-2 pr-10 text-sm bg-white">
+                      <option value="POPULAR">Popular</option>
+                      <option value="NEW">New</option>
+                      <option value="PRICE_LOW">Price: Low → High</option>
+                      <option value="PRICE_HIGH">Price: High → Low</option>
+                    </select>
+                    <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2">▾</span>
                   </div>
                 </div>
 
                 {/* SHOP layout (sidebar collapsible) */}
+{/* SHOP layout (sidebar collapsible) */}
                 <div className={sidebarOpen ? 'shop-with-sidebar' : ''}>
                   {sidebarOpen && (
                     <aside className="hidden md:block bg-white rounded-2xl shadow p-4 h-fit sticky top-24">
