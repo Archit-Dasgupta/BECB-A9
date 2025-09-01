@@ -153,12 +153,12 @@ html, body, #root { margin: 0; padding: 0; }
         
 
     const CATALOG = [
-        { id: 1, name: "Complete Dental Care Kit", type: "Dental Kit", price: 499, compareAt: 699, stock: 7,  image: "https://placedog.net/600/420?id=201", badge: "Best Seller" , sizes: ['S','M','L'], rating: 4.8, eta: "2–3 days" },
-        { id: 2, name: "Puppy Gentle Brush + Gel", type: "Brush", price: 399, compareAt: 549, stock: 12, image: "https://placedog.net/600/420?id=202", badge: "New" , sizes: ['S','M'], rating: 4.7, eta: "2–4 days" },
-        { id: 3, name: "Advanced Plaque Remover",  type: "Strips", price: 599, compareAt: 799, stock: 5,  image: "https://placedog.net/600/420?id=203", badge: "Limited" , sizes: ['M','L'], rating: 4.9, eta: "2–3 days" },
-        { id: 4, name: "Chew Toy Tooth Cleaner", type: "Chew Toy", price: 299, compareAt: 399, stock: 20, image: "https://placedog.net/600/420?id=204", badge: "Popular", sizes: ['S','M'], rating: 4.5, eta: "3–5 days" },
-        { id: 5, name: "Herbal Fresh Breath Spray", type: "Others", price: 199, compareAt: 299, stock: 15, image: "https://placedog.net/600/420?id=205", badge: "New", sizes: ['S','M','L'], rating: 4.6, eta: "2–4 days" },
-        { id: 6, name: "Dental Wipes Pack", type: "Others", price: 349, compareAt: 449, stock: 25, image: "https://placedog.net/600/420?id=206", badge: "Value Pack", sizes: ['S','L'], rating: 4.4, eta: "3–5 days" }
+        { id: 1, name: "Paw Smile's Complete Dog Dental Kit", type: "Dental Kit", price: 499, compareAt: 699, stock: 7,  image: "img/product1.png", badge: "Best Seller" , sizes: ['S','M','L'], rating: 4.8, eta: "2–3 days" },
+        { id: 2, name: "Paw Smile's Small Dogs & Puppy Gentle Brush", type: "Brush", price: 399, compareAt: 549, stock: 12, image: "img/product2.png", badge: "New" , sizes: ['S','M'], rating: 4.7, eta: "2–4 days" },
+        { id: 3, name: "Dog Plaque Remover",  type: "Strips", price: 599, compareAt: 799, stock: 5,  image: "img/product6.png", badge: "Limited" , sizes: ['M','L'], rating: 4.9, eta: "2–3 days" },
+        { id: 4, name: "Paw Smile Dog Chew Toy Tooth Cleaner", type: "Chew Toy", price: 299, compareAt: 399, stock: 20, image: "img/product3.png", badge: "Popular", sizes: ['S','M'], rating: 4.5, eta: "3–5 days" },
+        { id: 5, name: "Paw Smile's Dog Breath Spray - Mint", type: "Others", price: 199, compareAt: 299, stock: 15, image: "img/product4.png", badge: "New", sizes: ['S','M','L'], rating: 4.6, eta: "2–4 days" },
+        { id: 6, name: "Paw Smile Dog Dental Wipes - 50 wipes", type: "Others", price: 349, compareAt: 449, stock: 25, image: "img/product5.png", badge: "Value Pack", sizes: ['S','L'], rating: 4.4, eta: "3–5 days" }
       ];
 
       function App() {
@@ -621,7 +621,7 @@ html, body, #root { margin: 0; padding: 0; }
                   {/* HERO with background image */}
                   <section className="relative overflow-hidden shadow-soft rounded-none -mt-0 w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw]">
                     <div className="absolute inset-0">
-                      <img src="https://placedog.net/1200/700?id=128" alt="Happy dog background" className="w-full h-full object-cover" />
+                      <img src="img/hero1.png" alt="Happy dog background" className="w-full h-full object-cover" />
                       <div className="absolute inset-0 bg-gradient-to-r from-black/55 via-black/35 to-transparent"></div>
                     </div>
                     <div className="relative p-6 sm:p-10 min-h-[260px] md:min-h-[420px] flex items-center">
@@ -928,7 +928,10 @@ html, body, #root { margin: 0; padding: 0; }
                     Don’t know your size?
                   </button>
                 </div>
-    
+                {/* Separator line (mobile + desktop) */}
+                <div className="mx-auto my-3 sm:my-4 w-full max-w-md sm:max-w-none px-2">
+                  <div className="h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
+                </div>
 
                 {/* Toolbar (desktop only) — pill style & prominent */}
                 <div className="hidden md:flex items-center justify-between py-2 mb-2">
@@ -998,7 +1001,7 @@ html, body, #root { margin: 0; padding: 0; }
                   )}
 
                   {/* Product grid with compact auto-fill columns */}
-                  <section className="grid grid-cols-2 sm:[grid-template-columns:repeat(auto-fill,minmax(260px,1fr))] gap-3 md:gap-4 items-start">
+                  <section className="grid grid-cols-2 sm:[grid-template-columns:repeat(auto-fill,minmax(260px,1fr))] gap-3 md:gap-4 items-start bg-white rounded-2xl shadow-soft p-2 sm:bg-transparent sm:p-0">
                     {shopProducts.map(p => (
                       <div key={p.id} className="relative border rounded-2xl p-2 shadow hover:shadow-lg transition bg-white cursor-pointer"
                            onClick={() => { setActiveId(p.id); navigate('detail'); }}>
