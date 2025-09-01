@@ -130,6 +130,7 @@ html, body, #root { margin: 0; padding: 0; }
       );
 
       // Circular dog size control used on both mobile and desktop
+      
       const SizeCircle = ({ code, label, active, onClick }) => (
         <button onClick={onClick}
                 className={
@@ -137,11 +138,11 @@ html, body, #root { margin: 0; padding: 0; }
                   (active ? "text-[var(--primary)]" : "text-gray-700")
                 }>
           <span className={
-                "w-14 h-14 rounded-full border flex items-center justify-center " +
-                (active ? "bg-[var(--primary)]/10 border-[var(--primary)]" : "bg-white border-gray-300")
+                "w-14 h-14 rounded-full border flex items-center justify-center transition-colors " +
+                (active ? "bg-[var(--primary)]/20 border-2 border-[var(--primary)]" : "bg-white border border-gray-300")
               }>
             {code === 'ALL' ? (
-              <span className="text-xs font-semibold">All</span>
+              <span className={"text-xs font-semibold " + (active ? "" : "text-gray-700")}>All</span>
             ) : (
               <SizeIcon t={code} />
             )}
@@ -149,6 +150,7 @@ html, body, #root { margin: 0; padding: 0; }
           <span className="mt-1 text-xs">{label}</span>
         </button>
       );
+        
 
     const CATALOG = [
         { id: 1, name: "Complete Dental Care Kit", type: "Dental Kit", price: 499, compareAt: 699, stock: 7,  image: "https://placedog.net/600/420?id=201", badge: "Best Seller" , sizes: ['S','M','L'], rating: 4.8, eta: "2–3 days" },
@@ -439,9 +441,9 @@ html, body, #root { margin: 0; padding: 0; }
               ) : (
                 <>
                   {/* Mobile */}
-                  <div className="block sm:hidden" style={{height: "64px"}}></div>
+                  <div className="block sm:hidden" style={{height: "74px"}}></div>
                   {/* Tablet/Desktop */}
-                  <div className="hidden sm:block" style={{height: "72px"}}></div>
+                  <div className="hidden sm:block" style={{height: "82px"}}></div>
                 </>
               )}
             </div>
@@ -917,6 +919,16 @@ html, body, #root { margin: 0; padding: 0; }
                   <SizeCircle code="M"   label="Medium" active={sizeFilter==='M'}   onClick={()=>setSizeFilter('M')}   />
                   <SizeCircle code="L"   label="Large"  active={sizeFilter==='L'}   onClick={()=>setSizeFilter('L')}   />
                 </div>
+                {/* Size help trigger */}
+                <div className="text-center -mt-3 mb-4">
+                  <button
+                    onClick={()=>setSizeHelpOpen(true)}
+                    className="inline-flex items-center gap-1 text-xs sm:text-sm underline text-[var(--primary)] hover:opacity-80"
+                  >
+                    Don’t know your size?
+                  </button>
+                </div>
+    
 
                 {/* Toolbar (desktop only) — pill style & prominent */}
                 <div className="hidden md:flex items-center justify-between py-2 mb-2">
@@ -986,7 +998,7 @@ html, body, #root { margin: 0; padding: 0; }
                   )}
 
                   {/* Product grid with compact auto-fill columns */}
-                  <section className="grid [grid-template-columns:repeat(auto-fill,minmax(260px,1fr))] gap-3 md:gap-4 items-start">
+                  <section className="grid grid-cols-2 sm:[grid-template-columns:repeat(auto-fill,minmax(260px,1fr))] gap-3 md:gap-4 items-start">
                     {shopProducts.map(p => (
                       <div key={p.id} className="relative border rounded-2xl p-2 shadow hover:shadow-lg transition bg-white cursor-pointer"
                            onClick={() => { setActiveId(p.id); navigate('detail'); }}>
