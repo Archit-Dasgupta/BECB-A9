@@ -211,14 +211,14 @@
         return (
           <div className="min-h-screen">
             {/* STICKY WRAPPER: promo bar + header stick together */}
-            <div className="sticky top-0 z-50">
+            <div>
               {/* Promo bar */}
               <div className="w-full bg-[var(--dark)] text-white text-center text-xs sm:text-sm py-2 px-3">
                 <span className="font-semibold">Flash Sale</span>: 15% off with <span className="font-mono bg-white text-black px-1 rounded">SMILE15</span> — Ends in {timeLeft}
               </div>
 
               {/* Header (non-sticky inside sticky wrapper) */}
-              <header className="w-full bg-[var(--primary)] text-white shadow">
+              <header className="fixed top-0 left-0 right-0 z-50 w-full bg-[var(--primary)] text-white shadow">
                 <div className="mx-auto max-w-screen-xl px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-3">
                   
                   {/* Left: Back button when not on Home; Logo on Home */}
@@ -322,6 +322,7 @@
                   </div>
                 </div>
               </header>
+            <div className="h-[56px] sm:h-[64px]"></div>
             </div>
 
             {/* ---------- Mobile Search Overlay ---------- */}
