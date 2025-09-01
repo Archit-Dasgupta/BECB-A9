@@ -72,7 +72,6 @@
       };
 
       const CATALOG = [
-        // `rating` is 1-5, `eta` is a short delivery promise string
         { id: 1, name: "Complete Dental Care Kit", price: 499, compareAt: 699, stock: 7,  image: "https://placedog.net/600/420?id=201", badge: "Best Seller" , sizes: ['S','M','L'], rating: 4.8, eta: "2–3 days" },
         { id: 2, name: "Puppy Gentle Brush + Gel", price: 399, compareAt: 549, stock: 12, image: "https://placedog.net/600/420?id=202", badge: "New" , sizes: ['S','M'], rating: 4.7, eta: "2–4 days" },
         { id: 3, name: "Advanced Plaque Remover",  price: 599, compareAt: 799, stock: 5,  image: "https://placedog.net/600/420?id=203", badge: "Limited" , sizes: ['M','L'], rating: 4.9, eta: "2–3 days" },
@@ -83,8 +82,7 @@
 
       function App() {
         const [page, setPage] = useState("landing");
-        // NEW: Simple navigation history stack for back button
-        const [history, setHistory] = useState([]); // stores previous pages
+        const [history, setHistory] = useState([]);
         
         const navigate = (next) => {
           setHistory((h) => (page === next ? h : [...h, page]));
@@ -148,37 +146,34 @@
         };
 
         const activeProduct = CATALOG.find(p => p.id === activeId) || CATALOG[0];
-        // Filter products for Shop page based on size
         const shopProducts = useMemo(() => {
           if (sizeFilter === 'ALL') return CATALOG;
           return CATALOG.filter(p => (p.sizes || []).includes(sizeFilter));
         }, [sizeFilter]);
 
-        const NavButton = ({ label, goto }) => (
-          <button onClick={() => navigate(goto)} className="hover:opacity-90">{label}</button>
-        );
-
-        // ---------- Testimonials data ----------
+        // ---------- Testimonials carousel state ----------
         const TESTIMONIALS = [
           { name: "Aisha & Bruno", text: "Bruno actually lets me brush now. The gel smells good and no more bad breath!", rating: 5 },
           { name: "Rahul & Coco", text: "Easy routine, noticeable difference in 2 weeks. Great value for money.", rating: 5 },
           { name: "Meera & Simba", text: "Vet recommended this. The brush is soft and Coco loves the taste.", rating: 4 },
         ];
-        
-        
-        const [toast, setToast] = useState("");
-        useEffect(() => {
-          if (!toast) return;
-          const id = setTimeout(() => setToast(""), 2000);
-          return () => clearTimeout(id);
-        }, [toast]);
-
-        
-const [tIndex, setTIndex] = useState(0);
+        const [tIndex, setTIndex] = useState(0);
         const nextT = () => setTIndex(i => (i + 1) % TESTIMONIALS.length);
         const prevT = () => setTIndex(i => (i - 1 + TESTIMONIALS.length) % TESTIMONIALS.length);
         useEffect(() => {
           const id = setInterval(nextT, 6500);
+          return () => clearInterval(id);
+        }, []);
+
+        // ---------- Mobile Best Sellers carousel (1 row with arrows; auto every 20s) ----------
+        const BS_ITEMS = CATALOG.slice(0, 4);
+        const BS_PER_SLIDE = 2; // show 2 cards per row on mobile
+        const BS_SLIDES = Math.ceil(BS_ITEMS.length / BS_PER_SLIDE);
+        const [bsIndex, setBsIndex] = useState(0);
+        const prevBS = () => setBsIndex(i => (i - 1 + BS_SLIDES) % BS_SLIDES);
+        const nextBS = () => setBsIndex(i => (i + 1) % BS_SLIDES);
+        useEffect(() => {
+          const id = setInterval(nextBS, 20000); // auto-change every 20s
           return () => clearInterval(id);
         }, []);
 
@@ -197,12 +192,10 @@ const [tIndex, setTIndex] = useState(0);
           return () => io.disconnect();
         }, [page]);
 
-        // ---------- NEW: Search state (desktop + mobile overlay) ----------
+        // ---------- Search state ----------
         const [searchOpen, setSearchOpen] = useState(false);
         const [searchQuery, setSearchQuery] = useState("");
-        
-        const qtyInCart = (id) => cart.find(l => l.id === id)?.qty || 0;
-const filteredProducts = useMemo(
+        const filteredProducts = useMemo(
           () =>
             CATALOG.filter(p =>
               p.name.toLowerCase().includes(searchQuery.trim().toLowerCase())
@@ -210,121 +203,126 @@ const filteredProducts = useMemo(
           [searchQuery]
         );
 
-        // ---------- NEW: Payment method state (visual only) ----------
-        const [payMethod, setPayMethod] = useState("UPI"); // UPI | Card | NetBanking | COD
+        // ---------- Payment method state (visual only) ----------
+        const [payMethod, setPayMethod] = useState("UPI");
+
+        const qtyInCart = (id) => cart.find(l => l.id === id)?.qty || 0;
 
         return (
           <div className="min-h-screen">
-            {/* Promo bar */}
-            <div className="w-full bg-[var(--dark)] text-white text-center text-xs sm:text-sm py-2 px-3">
-              <span className="font-semibold">Flash Sale</span>: 15% off with <span className="font-mono bg-white text-black px-1 rounded">SMILE15</span> — Ends in {timeLeft}
-            </div>
+            {/* STICKY WRAPPER: promo bar + header stick together */}
+            <div className="sticky top-0 z-50">
+              {/* Promo bar */}
+              <div className="w-full bg-[var(--dark)] text-white text-center text-xs sm:text-sm py-2 px-3">
+                <span className="font-semibold">Flash Sale</span>: 15% off with <span className="font-mono bg-white text-black px-1 rounded">SMILE15</span> — Ends in {timeLeft}
+              </div>
 
-            {/* ---------- UPDATED HEADER WITH BACK BUTTON + SEARCH ---------- */}
-            <header className="sticky top-0 z-50 w-full bg-[var(--primary)] text-white shadow">
-              <div className="mx-auto max-w-screen-xl px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-3">
-                
-                {/* Left: Back button when not on Home; Logo on Home */}
-                <div className="shrink-0">
-                  {canGoBack ? (
-                    <button
-                      onClick={goBack}
-                      className="inline-flex items-center gap-2 rounded-lg bg-white/10 hover:bg-white/20 px-2.5 py-2"
-                      aria-label="Go back"
-                      title="Go back"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" className="w-5 h-5">
-                        <path d="M15 18l-6-6 6-6" strokeLinecap="round" strokeLinejoin="round"></path>
-                      </svg>
-                      <span className="text-sm hidden xs:inline">Back</span>
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => { navigate('landing'); }}
-                      className="flex items-center gap-2 group"
-                      aria-label="Go to Home"
-                      title="Paw Smile Dental — Home"
-                    >
-                      <svg width="150" height="34" viewBox="0 0 320 72" fill="none" xmlns="http://www.w3.org/2000/svg" className="transition transform group-hover:scale-[1.02]">
-                        <defs>
-                          <linearGradient id="grad" x1="0" y1="0" x2="1" y2="1">
-                            <stop offset="0%" stopColor="#ffffff" stopOpacity="1"/>
-                            <stop offset="100%" stopColor="#dbeafe" stopOpacity="1"/>
-                          </linearGradient>
-                        </defs>
-                        <g>
-                          <circle cx="28" cy="30" r="10" fill="url(#grad)"/>
-                          <circle cx="18" cy="18" r="5" fill="#ffffff" opacity="0.9"/>
-                          <circle cx="28" cy="14" r="5" fill="#ffffff" opacity="0.9"/>
-                          <circle cx="38" cy="18" r="5" fill="#ffffff" opacity="0.9"/>
-                          <path d="M22 36c6-2 16-2 22 0 2 6-2 12-6 12-3 0-5-3-5-6 0 3-2 6-5 6-4 0-8-6-6-12z" fill="#ffffff"/>
-                        </g>
-                        <text x="68" y="44" font-family="Segoe UI, system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif" font-weight="800" font-size="28" fill="#ffffff" letter-spacing="0.5">Paw Smile</text>
-                      </svg>
-                    </button>
-                  )}
-                </div>
-
-                {/* Center: Compact desktop nav truly centered */}
-                <div className="hidden sm:flex flex-1 justify-center">
-                  <nav className="flex items-center gap-2 rounded-full bg-white/10 backdrop-blur px-2 py-1">
-                    <button onClick={() => navigate('landing')} className="px-3 py-1 rounded-full hover:bg-white/20 text-sm font-medium">Home</button>
-                    <button onClick={() => navigate('about')}   className="px-3 py-1 rounded-full hover:bg-white/20 text-sm font-medium">About Us</button>
-                    <button onClick={() => navigate('shop')}    className="px-3 py-1 rounded-full hover:bg-white/20 text-sm font-medium">Shop</button>
-                    <button onClick={() => navigate('about')}    className="px-3 py-1 rounded-full hover:bg-white/20 text-sm font-medium">Contact</button>
-                  </nav>
-                </div>
-
-                {/* Right: Desktop search + cart / Mobile actions (shrink, hugs right) */}
-                <div className="shrink-0 flex items-center justify-end gap-2">
-                  {/* Desktop search */}
-                  <div className="hidden md:flex items-center rounded-full bg-white/15 border border-white/20 px-3 py-1.5">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="opacity-80">
-                      <path d="M21 21l-4.3-4.3m1.8-4.7a7 7 0 11-14 0 7 7 0 0114 0z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                    <input
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Search dog dental kits…"
-                      className="bg-transparent placeholder-white/70 text-white text-sm outline-none ml-2 w-36"
-                    />
+              {/* Header (non-sticky inside sticky wrapper) */}
+              <header className="w-full bg-[var(--primary)] text-white shadow">
+                <div className="mx-auto max-w-screen-xl px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-3">
+                  
+                  {/* Left: Back button when not on Home; Logo on Home */}
+                  <div className="shrink-0">
+                    {canGoBack ? (
+                      <button
+                        onClick={goBack}
+                        className="inline-flex items-center gap-2 rounded-lg bg-white/10 hover:bg-white/20 px-2.5 py-2"
+                        aria-label="Go back"
+                        title="Go back"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" className="w-5 h-5">
+                          <path d="M15 18l-6-6 6-6" strokeLinecap="round" strokeLinejoin="round"></path>
+                        </svg>
+                        <span className="text-sm hidden xs:inline">Back</span>
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => { navigate('landing'); }}
+                        className="flex items-center gap-2 group"
+                        aria-label="Go to Home"
+                        title="Paw Smile Dental — Home"
+                      >
+                        <svg width="150" height="34" viewBox="0 0 320 72" fill="none" xmlns="http://www.w3.org/2000/svg" className="transition transform group-hover:scale-[1.02]">
+                          <defs>
+                            <linearGradient id="grad" x1="0" y1="0" x2="1" y2="1">
+                              <stop offset="0%" stopColor="#ffffff" stopOpacity="1"/>
+                              <stop offset="100%" stopColor="#dbeafe" stopOpacity="1"/>
+                            </linearGradient>
+                          </defs>
+                          <g>
+                            <circle cx="28" cy="30" r="10" fill="url(#grad)"/>
+                            <circle cx="18" cy="18" r="5" fill="#ffffff" opacity="0.9"/>
+                            <circle cx="28" cy="14" r="5" fill="#ffffff" opacity="0.9"/>
+                            <circle cx="38" cy="18" r="5" fill="#ffffff" opacity="0.9"/>
+                            <path d="M22 36c6-2 16-2 22 0 2 6-2 12-6 12-3 0-5-3-5-6 0 3-2 6-5 6-4 0-8-6-6-12z" fill="#ffffff"/>
+                          </g>
+                          <text x="68" y="44" font-family="Segoe UI, system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif" font-weight="800" font-size="28" fill="#ffffff" letter-spacing="0.5">Paw Smile</text>
+                        </svg>
+                      </button>
+                    )}
                   </div>
 
-                  {/* Mobile search icon */}
-                  <button
-                    onClick={() => setSearchOpen(true)}
-                    className="md:hidden inline-flex items-center justify-center rounded-lg bg-white/10 hover:bg-white/20 px-2.5 py-2"
-                    aria-label="Search"
-                  >
-                    🔎
-                  </button>
+                  {/* Center: Compact desktop nav truly centered */}
+                  <div className="hidden sm:flex flex-1 justify-center">
+                    <nav className="flex items-center gap-2 rounded-full bg-white/10 backdrop-blur px-2 py-1">
+                      <button onClick={() => navigate('landing')} className="px-3 py-1 rounded-full hover:bg-white/20 text-sm font-medium">Home</button>
+                      <button onClick={() => navigate('about')}   className="px-3 py-1 rounded-full hover:bg-white/20 text-sm font-medium">About Us</button>
+                      <button onClick={() => navigate('shop')}    className="px-3 py-1 rounded-full hover:bg-white/20 text-sm font-medium">Shop</button>
+                      <button onClick={() => navigate('about')}    className="px-3 py-1 rounded-full hover:bg-white/20 text-sm font-medium">Contact</button>
+                    </nav>
+                  </div>
 
-                  {/* Mobile quick nav (toggle Home/Shop) */}
-                  {page === 'shop' ? (
-                    <button onClick={() => navigate('landing')} className="sm:hidden text-sm bg-white/10 px-3 py-1.5 rounded-lg">
-                      Home
-                    </button>
-                  ) : (
-                    <button onClick={() => navigate('shop')} className="sm:hidden text-sm bg-white/10 px-3 py-1.5 rounded-lg">
-                      Shop
-                    </button>
-                  )}
+                  {/* Right: Desktop search + cart / Mobile actions */}
+                  <div className="shrink-0 flex items-center justify-end gap-2">
+                    {/* Desktop search */}
+                    <div className="hidden md:flex items-center rounded-full bg-white/15 border border-white/20 px-3 py-1.5">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="opacity-80">
+                        <path d="M21 21l-4.3-4.3m1.8-4.7a7 7 0 11-14 0 7 7 0 0114 0z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      <input
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="Search dog dental kits…"
+                        className="bg-transparent placeholder-white/70 text-white text-sm outline-none ml-2 w-36"
+                      />
+                    </div>
 
-                  {/* Cart */}
-                  <button
-                    onClick={() => setDrawerOpen(true)}
-                    className="relative rounded-lg bg-white/10 px-3 sm:px-4 py-1.5 sm:py-2 hover:bg-white/20 transition text-sm md:text-base"
-                  >
-                    Cart
-                    {cartCount > 0 && (
-                      <span className="absolute -top-2 -right-2 text-[10px] sm:text-xs bg-white text-[var(--primary)] font-bold rounded-full w-5 h-5 sm:w-6 sm:h-6 inline-flex items-center justify-center">
-                        {cartCount}
-                      </span>
+                    {/* Mobile search icon */}
+                    <button
+                      onClick={() => setSearchOpen(true)}
+                      className="md:hidden inline-flex items-center justify-center rounded-lg bg-white/10 hover:bg-white/20 px-2.5 py-2"
+                      aria-label="Search"
+                    >
+                      🔎
+                    </button>
+
+                    {/* Mobile quick nav (toggle Home/Shop) */}
+                    {page === 'shop' ? (
+                      <button onClick={() => navigate('landing')} className="sm:hidden text-sm bg-white/10 px-3 py-1.5 rounded-lg">
+                        Home
+                      </button>
+                    ) : (
+                      <button onClick={() => navigate('shop')} className="sm:hidden text-sm bg-white/10 px-3 py-1.5 rounded-lg">
+                        Shop
+                      </button>
                     )}
-                  </button>
+
+                    {/* Cart */}
+                    <button
+                      onClick={() => setDrawerOpen(true)}
+                      className="relative rounded-lg bg-white/10 px-3 sm:px-4 py-1.5 sm:py-2 hover:bg-white/20 transition text-sm md:text-base"
+                    >
+                      Cart
+                      {cartCount > 0 && (
+                        <span className="absolute -top-2 -right-2 text-[10px] sm:text-xs bg-white text-[var(--primary)] font-bold rounded-full w-5 h-5 sm:w-6 sm:h-6 inline-flex items-center justify-center">
+                          {cartCount}
+                        </span>
+                      )}
+                    </button>
+                  </div>
                 </div>
-              </div>
-            </header>
+              </header>
+            </div>
 
             {/* ---------- Mobile Search Overlay ---------- */}
             {searchOpen && (
@@ -538,12 +536,88 @@ const filteredProducts = useMemo(
                     </div>
                   </section>
 
-                  {/* Quick Best Seller card — pulled up on mobile with negative margin */
-                  
-                  /* Best Sellers — static grid */
+                  {/* Best Sellers */}
                   <section className="bg-white p-3 sm:p-4 -mt-4 sm:mt-0 rounded-2xl shadow-soft">
-                    <h3 className="text-lg font-bold text-[var(--primary)] mb-3">Best Sellers</h3>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-lg font-bold text-[var(--primary)]">Best Sellers</h3>
+
+                      {/* Mobile arrows on top-right */}
+                      <div className="sm:hidden flex items-center gap-2">
+                        <button
+                          className="px-3 py-1.5 rounded-lg border hover:bg-[var(--bg)]"
+                          aria-label="Previous"
+                          onClick={prevBS}
+                        >
+                          ‹
+                        </button>
+                        <button
+                          className="px-3 py-1.5 rounded-lg border hover:bg-[var(--bg)]"
+                          aria-label="Next"
+                          onClick={nextBS}
+                        >
+                          ›
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Mobile: 1 row carousel (2 cards visible) */}
+                    <div className="relative sm:hidden">
+                      <div className="overflow-hidden">
+                        <div
+                          className="transition-all duration-500"
+                          style={{
+                            transform: `translateX(-${bsIndex * 100}%)`,
+                            display: "grid",
+                            gridTemplateColumns: `repeat(${Math.ceil(BS_ITEMS.length / BS_PER_SLIDE)}, 100%)`,
+                          }}
+                        >
+                          {Array.from({ length: Math.ceil(BS_ITEMS.length / BS_PER_SLIDE) }).map((_, slideIdx) => (
+                            <div key={slideIdx} className="grid grid-cols-2 gap-3">
+                              {BS_ITEMS.slice(slideIdx * BS_PER_SLIDE, slideIdx * BS_PER_SLIDE + BS_PER_SLIDE).map(p => (
+                                <div key={p.id} className="relative border rounded-2xl p-2 shadow hover:shadow-lg transition bg-white cursor-pointer"
+                                  onClick={() => { setActiveId(p.id); navigate('detail'); }}>
+                                  <div className="relative rounded-xl overflow-hidden aspect-[4/5] mb-1">
+                                    <img src={p.image} alt={p.name} loading="lazy" className="w-full h-full object-cover" />
+                                    <span className="absolute top-2 left-2 text-[10px] bg-[var(--primary)] text-white px-2 py-1 rounded-lg">{p.badge}</span>
+                                    <span className="absolute top-2 right-2 text-[10px] bg-[var(--accent)] text-white px-2 py-1 rounded-lg">-{pctOff(p.price, p.compareAt)}%</span>
+                                  </div>
+                                  <div className="text-xs font-semibold leading-tight clamp-1">{p.name}</div>
+                                  <div className="text-xs text-gray-700">
+                                    <span className="font-semibold">{formatINR(p.price)}</span>
+                                    <span className="line-through-muted ml-1">{formatINR(p.compareAt)}</span>
+                                  </div>
+                                  <div className="text-[10px] text-gray-600 mt-1">⭐ {p.rating?.toFixed(1) ?? "4.7"} · 🚚 {p.eta ?? "2–4 days"}</div>
+
+                                  {qtyInCart(p.id) > 0 ? (
+                                    <div className="absolute bottom-2 right-2 bg-[var(--accent)] text-white rounded-2xl shadow flex items-center overflow-hidden">
+                                      <button
+                                        onClick={(e) => { e.stopPropagation(); updateQty(p.id, Math.max(qtyInCart(p.id) - 1, 0)); }}
+                                        className="px-2 py-1 text-base leading-none"
+                                      >−</button>
+                                      <div className="px-2 py-1 text-sm font-semibold">{qtyInCart(p.id)}</div>
+                                      <button
+                                        onClick={(e) => { e.stopPropagation(); addToCart(p.id); }}
+                                        className="px-2 py-1 text-base leading-none"
+                                      >+</button>
+                                    </div>
+                                  ) : (
+                                    <button
+                                      onClick={(e) => { e.stopPropagation(); addToCart(p.id); }}
+                                      className="absolute bottom-2 right-2 text-[10px] font-semibold bg-white text-[var(--accent)] border border-[var(--accent)] px-2 py-0.5 rounded-xl shadow"
+                                    >
+                                      ADD +
+                                    </button>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Desktop/tablet: keep original 4-card grid */}
+                    <div className="hidden sm:grid grid-cols-3 md:grid-cols-4 gap-3">
                       {CATALOG.slice(0,4).map(p => (
                         <div key={p.id} className="relative border rounded-2xl p-2 shadow hover:shadow-lg transition bg-white cursor-pointer"
                              onClick={() => { setActiveId(p.id); navigate('detail'); }}>
@@ -552,29 +626,29 @@ const filteredProducts = useMemo(
                             <span className="absolute top-2 left-2 text-[10px] bg-[var(--primary)] text-white px-2 py-1 rounded-lg">{p.badge}</span>
                             <span className="absolute top-2 right-2 text-[10px] bg-[var(--accent)] text-white px-2 py-1 rounded-lg">-{pctOff(p.price, p.compareAt)}%</span>
                           </div>
-                          <div className="text-xs sm:text-sm font-semibold leading-tight clamp-1">{p.name}</div>
-                          <div className="text-xs sm:text-sm text-gray-700">
+                          <div className="text-sm font-semibold leading-tight clamp-1">{p.name}</div>
+                          <div className="text-sm text-gray-700">
                             <span className="font-semibold">{formatINR(p.price)}</span>
                             <span className="line-through-muted ml-1">{formatINR(p.compareAt)}</span>
                           </div>
-                          <div className="text-[10px] text-gray-600 mt-1">⭐ {p.rating?.toFixed(1) ?? "4.7"} · 🚚 {p.eta ?? "2–4 days"}</div>
+                          <div className="text-xs text-gray-600 mt-1">⭐ {p.rating?.toFixed(1) ?? "4.7"} · 🚚 {p.eta ?? "2–4 days"}</div>
 
                           {qtyInCart(p.id) > 0 ? (
                             <div className="absolute bottom-2 right-2 bg-[var(--accent)] text-white rounded-2xl shadow flex items-center overflow-hidden">
                               <button
-                                onClick={(e) => { e.stopPropagation(); updateQty(p.id, Math.max(qtyInCart(p.id) - 1, 0)); setToast('✔ Updated'); }}
+                                onClick={(e) => { e.stopPropagation(); updateQty(p.id, Math.max(qtyInCart(p.id) - 1, 0)); }}
                                 className="px-2 py-1 text-base leading-none"
                               >−</button>
                               <div className="px-2 py-1 text-sm font-semibold">{qtyInCart(p.id)}</div>
                               <button
-                                onClick={(e) => { e.stopPropagation(); addToCart(p.id); setToast('✔ Added to cart'); }}
+                                onClick={(e) => { e.stopPropagation(); addToCart(p.id); }}
                                 className="px-2 py-1 text-base leading-none"
                               >+</button>
                             </div>
                           ) : (
                             <button
-                              onClick={(e) => { e.stopPropagation(); addToCart(p.id); setToast('✔ Added to cart'); }}
-                              className="absolute bottom-2 right-2 text-[10px] font-semibold bg-white text-[var(--accent)] border border-[var(--accent)] px-2 py-0.5 rounded-xl shadow"
+                              onClick={(e) => { e.stopPropagation(); addToCart(p.id); }}
+                              className="absolute bottom-2 right-2 text-[11px] font-semibold bg-white text-[var(--accent)] border border-[var(--accent)] px-2 py-0.5 rounded-xl shadow"
                             >
                               ADD +
                             </button>
@@ -584,14 +658,13 @@ const filteredProducts = useMemo(
                     </div>
                   </section>
 
-                  /* Testimonials
- — moved above Features and pulled a touch up on mobile */}
+                  {/* Testimonials */}
                   <section className="bg-white rounded-2xl shadow-soft p-4 sm:p-6 -mt-2 sm:mt-0">
                     <div className="flex items-center justify-between mb-3">
                       <h3 className="text-lg sm:text-xl font-bold text-[var(--primary)]">
                         What Pet Parents Say
                       </h3>
-                      <div className="flex items-center gap-2">
+                      <div className="hidden sm:flex items-center gap-2">
                         <button
                           className="px-3 py-1.5 rounded-lg border hover:bg-[var(--bg)]"
                           aria-label="Previous"
@@ -620,9 +693,7 @@ const filteredProducts = useMemo(
                       >
                         {TESTIMONIALS.map((t, idx) => (
                           <div key={idx} className="p-2">
-                            {/* Google-review style with initials avatar */}
                             <div className="flex items-start gap-3 border rounded-lg p-4 bg-white shadow-sm">
-                              {/* Initials avatar (two letters) */}
                               <div className="w-10 h-10 rounded-full bg-[var(--primary)] text-white flex items-center justify-center text-sm font-semibold">
                                 {t.name
                                   .split(" ")
@@ -633,13 +704,8 @@ const filteredProducts = useMemo(
                               </div>
 
                               <div className="flex-1">
-                                {/* Reviewer name */}
                                 <div className="font-semibold text-gray-900 text-sm">{t.name}</div>
-
-                                {/* Review text */}
                                 <p className="mt-1 text-gray-800 text-sm">"{t.text}"</p>
-
-                                {/* Star rating */}
                                 <div className="mt-1 flex items-center text-amber-500 text-sm leading-none">
                                   {"★".repeat(t.rating)}
                                   {Array(5 - t.rating).fill("☆")}
@@ -663,7 +729,7 @@ const filteredProducts = useMemo(
                     </div>
                   </section>
 
-                  {/* Features — minimal icon cards */}
+                  {/* Features */}
                   <section className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 reveal">
                     {[
                       { title: "Vet Recommended", icon: "🩺", desc: "Designed with vets; gentle on gums." },
@@ -747,7 +813,7 @@ const filteredProducts = useMemo(
                       <div className="mt-1 text-[10px] text-gray-600">Sizes: {(p.sizes||[]).join(", ")}</div>
 
                       <div className="mt-3 flex gap-2">
-                        <PrimaryBtn onClick={(e) => { e.stopPropagation(); addToCart(p.id); setToast('✔ Added to cart'); }} className="flex-1">Add to Cart</PrimaryBtn>
+                        <PrimaryBtn onClick={(e) => { e.stopPropagation(); addToCart(p.id); }} className="flex-1">Add to Cart</PrimaryBtn>
                       </div>
                       <PrimaryBtn onClick={(e) => { e.stopPropagation(); addToCart(p.id); navigate('address'); }} className="mt-2 w-full">Buy Now</PrimaryBtn>
                     </div>
@@ -815,7 +881,7 @@ const filteredProducts = useMemo(
                 </section>
               )}
 
-              {/* PAYMENT (visuals unchanged functionally) */}
+              {/* PAYMENT */}
               {page === "payment" && (
                 <section className="max-w-md w-full mx-auto bg-white rounded-2xl shadow p-4 sm:p-6">
                   <div className="mb-3 flex items-center justify-between">
@@ -842,7 +908,6 @@ const filteredProducts = useMemo(
                     <p className="text-xs text-gray-500">Including taxes & discounts</p>
                   </div>
 
-                  {/* Payment method selector (visual only) */}
                   <div className="space-y-2 mb-4">
                     {["UPI","Card","NetBanking","COD"].map((m) => (
                       <label key={m} className={`flex items-center justify-between border rounded-lg px-3 py-2 cursor-pointer ${payMethod===m ? "border-[var(--primary)] bg-blue-50/40" : "border-gray-200"}`}>
@@ -855,7 +920,6 @@ const filteredProducts = useMemo(
                     ))}
                   </div>
 
-                  {/* Minimal dynamic field mock (no functional processing) */}
                   {payMethod === "UPI" && (
                     <div className="mb-4">
                       <input className="w-full rounded-lg border px-3 py-2 text-sm" placeholder="Enter UPI ID (e.g., name@bank)" />
@@ -885,7 +949,6 @@ const filteredProducts = useMemo(
 
                   <PrimaryBtn
                     onClick={() => {
-                      // Clear cart on successful purchase
                       setCart([]);
                       setCouponApplied(false);
                       navigate('thankyou');
@@ -906,7 +969,7 @@ const filteredProducts = useMemo(
                   <h2 className="text-xl sm:text-2xl font-bold text-[var(--accent)]">Thank You!</h2>
                   <p className="mt-2">Your order has been placed successfully.</p>
                   <p className="text-sm mt-2">Estimated delivery: 3–5 days</p>
-                  <div className="mt-4"><OutlineBtn onClick={() => { setPage('landing'); /* Do not push to history to avoid back to thankyou */ setHistory([]); }}>Back to Home</OutlineBtn></div>
+                  <div className="mt-4"><OutlineBtn onClick={() => { setPage('landing'); setHistory([]); }}>Back to Home</OutlineBtn></div>
                 </section>
               )}
             </main>
@@ -922,15 +985,6 @@ const filteredProducts = useMemo(
                 </button>
               </div>
             )}
-
-            {toast && (
-              <div className="fixed bottom-16 inset-x-0 flex justify-center z-50">
-                <div className="bg-[var(--primary)] text-white px-4 py-2 rounded-full shadow-lg text-sm">
-                  {toast}
-                </div>
-              </div>
-            )}
-
           </div>
         );
       }
