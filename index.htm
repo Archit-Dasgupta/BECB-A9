@@ -322,7 +322,8 @@
                   </div>
                 </div>
               </header>
-            <div className="h-0"></div>
+              {/* Spacer below header — only for non-landing pages */}
+              {page !== "landing" && <div className="h-[64px] sm:h-[72px]"></div>}
             </div>
 
             {/* ---------- Mobile Search Overlay ---------- */}
