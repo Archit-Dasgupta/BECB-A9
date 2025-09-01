@@ -322,7 +322,7 @@
                   </div>
                 </div>
               </header>
-            <div className="h-[56px] sm:h-[64px]"></div>
+            <div className="h-0"></div>
             </div>
 
             {/* ---------- Mobile Search Overlay ---------- */}
@@ -577,7 +577,7 @@
                               {BS_ITEMS.slice(slideIdx * BS_PER_SLIDE, slideIdx * BS_PER_SLIDE + BS_PER_SLIDE).map(p => (
                                 <div key={p.id} className="relative border rounded-2xl p-2 shadow hover:shadow-lg transition bg-white cursor-pointer"
                                   onClick={() => { setActiveId(p.id); navigate('detail'); }}>
-                                  <div className="relative rounded-xl overflow-hidden aspect-[4/5] mb-1">
+                                  <div className="relative rounded-xl overflow-hidden aspect-[1/1] mb-1">
                                     <img src={p.image} alt={p.name} loading="lazy" className="w-full h-full object-cover" />
                                     <span className="absolute top-2 left-2 text-[10px] bg-[var(--primary)] text-white px-2 py-1 rounded-lg">{p.badge}</span>
                                     <span className="absolute top-2 right-2 text-[10px] bg-[var(--accent)] text-white px-2 py-1 rounded-lg">-{pctOff(p.price, p.compareAt)}%</span>
@@ -622,7 +622,7 @@
                       {CATALOG.slice(0,4).map(p => (
                         <div key={p.id} className="relative border rounded-2xl p-2 shadow hover:shadow-lg transition bg-white cursor-pointer"
                              onClick={() => { setActiveId(p.id); navigate('detail'); }}>
-                          <div className="relative rounded-xl overflow-hidden aspect-[4/5] mb-1">
+                          <div className="relative rounded-xl overflow-hidden aspect-[1/1] mb-1">
                             <img src={p.image} alt={p.name} loading="lazy" className="w-full h-full object-cover" />
                             <span className="absolute top-2 left-2 text-[10px] bg-[var(--primary)] text-white px-2 py-1 rounded-lg">{p.badge}</span>
                             <span className="absolute top-2 right-2 text-[10px] bg-[var(--accent)] text-white px-2 py-1 rounded-lg">-{pctOff(p.price, p.compareAt)}%</span>
