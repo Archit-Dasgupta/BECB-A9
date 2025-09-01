@@ -162,7 +162,14 @@ html, body, #root { margin: 0; padding: 0; }
             const line = prev.find(l => l.id === id);
             return line ? prev.map(l => l.id === id ? { ...l, qty: l.qty + qty } : l) : [...prev, { id, qty }];
           });
-        };
+        
+  // 🔔 Trigger cart button animation
+  const btn = document.querySelector("#cart-btn");
+  if (btn) {
+    btn.classList.add("cart-animate");
+    setTimeout(() => btn.classList.remove("cart-animate"), 650);
+  }
+};
         const updateQty = (id, qty) => {
           if (qty <= 0) setCart(prev => prev.filter(l => l.id !== id));
           else setCart(prev => prev.map(l => l.id === id ? { ...l, qty } : l));
