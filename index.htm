@@ -621,22 +621,28 @@ html, body, #root { margin: 0; padding: 0; }
                   {/* HERO with background image */}
                   <section className="relative overflow-hidden shadow-soft rounded-none -mt-0 w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw]">
                     <div className="absolute inset-0">
-                      <img src="img/hero1.png" alt="Happy dog background" className="w-full h-full object-cover" />
+                      <img src="img/hero2.png" alt="Happy dog background" className="w-full h-full object-cover" />
                       <div className="absolute inset-0 bg-gradient-to-r from-black/55 via-black/35 to-transparent"></div>
                     </div>
                     <div className="relative p-6 sm:p-10 min-h-[260px] md:min-h-[420px] flex items-center">
                       <div className="max-w-2xl text-white flex flex-col items-center text-center mx-auto sm:mx-0 sm:items-start sm:text-left">
-                        <span className="inline-block bg-white/20 text-white font-medium text-xs sm:text-sm px-2 py-1 rounded mb-3">Vet Approved</span>
-                        <h2 className="text-2xl sm:text-4xl md:text-5xl font-extrabold leading-tight drop-shadow">Dog Dental Care Kits</h2>
-                        <p className="mt-2 text-sm sm:mt-3 sm:text-lg text-white/90 max-w-xs sm:max-w-md">
-                          Brush + Enzyme Gel + Chew Toy + Fresh‑Breath Spray. Stop bad breath, prevent plaque—starter kits from ₹499.
-                        </p>
+                      <span className="inline-block bg-green-500/90 text-white font-medium text-xs sm:text-sm px-2 py-1 rounded mb-3 shadow-md">
+                        Vet Approved
+                      </span>
+
+                      <h2 className="text-2xl sm:text-4xl md:text-5xl font-extrabold leading-tight tracking-tight text-white drop-shadow-lg">
+                        Happy Teeth, Happy Dogs!
+                      </h2>
+
+                      <p className="mt-2 text-sm sm:mt-3 sm:text-lg text-white/900 drop-shadow-md max-w-xs sm:max-w-md">
+                        All-in-one dental care for your dog’s. <br></br> Paw Smile Kits fight plaque and keep your furry friends breath fresh!
+                      </p>
+
 
                         {/* Reassurance bar (mobile only) */}
-                        <div className="mt-3 w-full grid grid-cols-3 gap-2 text-[10px] text-black/80">
-                          <div className="rounded-lg bg-white/80 text-center py-1">🚚 Fast delivery</div>
-                          <div className="rounded-lg bg-white/80 text-center py-1">🛡️ Vet‑approved</div>
-                          <div className="rounded-lg bg-white/80 text-center py-1">↩️ Easy returns</div>
+                        <div className="mt-3 w-full grid grid-cols-2 gap-2 text-[15px] text-black/80">
+                          <div className="inline-block rounded-lg bg-white/90 text-center shadow-md px-3 py-1">🚚 Fast delivery</div>
+                          <div className="inline-block rounded-lg bg-white/90 text-center shadow-md px-3 py-1">↩️ Easy returns</div>
                         </div>
 
                         {/* Centered CTAs on mobile */}
@@ -1102,80 +1108,173 @@ html, body, #root { margin: 0; padding: 0; }
               )}
 
               {/* DETAIL */}
-              {page === "detail" && (
-                <section className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                  <div className="rounded-2xl overflow-hidden shadow aspect-[16/10]">
-                    <img src="https://placedog.net/900/650?id=240" alt={activeProduct.name} loading="lazy" className="w-full h-full object-cover" />
-                  </div>
-
-                  <div className="bg-white rounded-2xl shadow p-4 sm:p-6">
-                    <h2 className="text-xl sm:text-2xl font-bold text-[var(--primary)]">{activeProduct.name}</h2>
-                    <p className="mt-2">
-                      <span className="font-semibold">{formatINR(activeProduct.price)}</span>
-                      <span className="line-through text-gray-400 ml-2">{formatINR(activeProduct.compareAt)}</span>
-                      <span className="ml-2 text-[10px] sm:text-xs bg-[var(--accent)] text-white px-2 py-0.5 rounded">{pctOff(activeProduct.price, activeProduct.compareAt)}% OFF</span>
-                    </p>
-                    <p className="mt-3 text-sm sm:text-base">Everything you need to keep your dog’s teeth clean and healthy.</p>
-
-                    <div className="mt-3 text-xs sm:text-sm text-gray-700">Good for sizes: {(activeProduct.sizes||[]).join(", ")}.
-                      <button onClick={() => { navigate('shop'); setSizeFilter((activeProduct.sizes||[])[0]||'ALL'); }} className="ml-2 underline text-[var(--primary)]">See matching items</button>
+                {page === "detail" && (
+                  <section className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                    {/* Product Image */}
+                    <div className="rounded-2xl overflow-hidden shadow aspect-[16/10]">
+                      <img
+                        src={activeProduct.image}
+                        alt={activeProduct.name}
+                        loading="lazy"
+                        className="w-full h-full object-cover"
+                      />
                     </div>
 
-                    {/* Replace Add/Buy buttons with ADD/qty like tiles */}
-                    {qtyInCart(activeProduct.id) > 0 ? (
-                      <div className="bg-[var(--accent)] text-white rounded-2xl shadow flex items-center overflow-hidden w-fit">
+                    {/* Product Info */}
+                    <div className="bg-white rounded-2xl shadow p-4 sm:p-6">
+                      <h2 className="text-xl sm:text-2xl font-bold text-[var(--primary)]">
+                        {activeProduct.name}
+                      </h2>
+
+                      {/* Price */}
+                      <p className="mt-2">
+                        <span className="font-semibold">
+                          {formatINR(activeProduct.price)}
+                        </span>
+                        <span className="line-through text-gray-400 ml-2">
+                          {formatINR(activeProduct.compareAt)}
+                        </span>
+                        <span className="ml-2 text-[10px] sm:text-xs bg-[var(--accent)] text-white px-2 py-0.5 rounded">
+                          {pctOff(activeProduct.price, activeProduct.compareAt)}% OFF
+                        </span>
+                      </p>
+
+                      {/* Short description */}
+                      <p className="mt-3 text-sm sm:text-base">
+                        Everything you need to keep your dog’s teeth clean and healthy.
+                      </p>
+
+                      {/* Sizes */}
+                      <div className="mt-3 text-xs sm:text-sm text-gray-700">
+                        Good for sizes: {(activeProduct.sizes || []).join(", ")}.
                         <button
-                          onClick={() => updateQty(activeProduct.id, Math.max(qtyInCart(activeProduct.id) - 1, 0))}
-                          className="px-3 py-1.5 text-base leading-none"
-                        >−</button>
-                        <div className="px-3 py-1.5 text-sm font-semibold">{qtyInCart(activeProduct.id)}</div>
+                          onClick={() => {
+                            navigate("shop");
+                            setSizeFilter((activeProduct.sizes || [])[0] || "ALL");
+                          }}
+                          className="ml-2 underline text-[var(--primary)]"
+                        >
+                          See matching items
+                        </button>
+                      </div>
+
+                      {/* Add to Cart & Buy Now buttons */}
+                      <div className="mt-4 flex gap-3">
                         <button
                           onClick={() => addToCart(activeProduct.id)}
-                          className="px-3 py-1.5 text-base leading-none"
-                        >+</button>
+                          className="flex-1 text-sm sm:text-base font-semibold bg-[var(--accent)] text-white px-4 py-2 rounded-xl shadow hover:opacity-90 transition"
+                        >
+                          Add to Cart
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            addToCart(activeProduct.id); // ensure item is in cart
+                            navigate("address"); // take user to checkout
+                          }}
+                          className="flex-1 text-sm sm:text-base font-semibold bg-white text-[var(--accent)] border border-[var(--accent)] px-4 py-2 rounded-xl shadow hover:bg-[var(--bg)] transition"
+                        >
+                          Buy Now
+                        </button>
                       </div>
-                    ) : (
-                      <button
-                        onClick={() => addToCart(activeProduct.id)}
-                        className="text-[12px] sm:text-sm font-semibold bg-white text-[var(--accent)] border border-[var(--accent)] px-3 py-1.5 rounded-xl shadow"
-                      >
-                        ADD +
-                      </button>
-                    )}
 
-                    <div className="mt-6 grid grid-cols-3 text-xs sm:text-sm">
-                      <div className="border-b-2 border-[var(--primary)] pb-2 font-semibold">Description</div>
-                      <div className="border-b pb-2 text-gray-500">Ingredients</div>
-                      <div className="border-b pb-2 text-gray-500">Reviews</div>
-                    </div>
-                    <p className="mt-3 text-xs sm:text-sm">Starter kit with brush, gel, and tutorial. Gentle on gums, effective on plaque.</p>
-                  </div>
-                </section>
-              )}
+                      {/* Description */}
+                      <div className="mt-6">
+                        <div className="grid grid-cols-3 text-xs sm:text-sm">
+                          <div className="border-b-2 border-[var(--primary)] pb-2 font-semibold">
+                            Description
+                          </div>
+                        </div>
+                        <p className="mt-3 text-xs sm:text-sm">
+                          Starter kit with brush, gel, and tutorial. Gentle on gums,
+                          effective on plaque.
+                        </p>
 
-              {/* ADDRESS */}
-              {page === "address" && (
-                <section className="max-w-md w-full mx-auto bg-white rounded-2xl shadow p-4 sm:p-6">
-                  <h2 className="text-lg sm:text-xl font-bold text-[var(--primary)]">Delivery Details</h2>
-                  <div className="text-xs mt-1 text-gray-600">Tip: Add more items and apply SMILE15 at checkout to save more.</div>
-                  <div className="mt-4 space-y-3">
-                    <input className="w-full rounded-lg border px-3 py-2 text-sm sm:text-base" placeholder="Full Name" />
-                    <input className="w-full rounded-lg border px-3 py-2 text-sm sm:text-base" placeholder="Mobile Number" />
-                    <input className="w-full rounded-lg border px-3 py-2 text-sm sm:text-base" placeholder="Address" />
-                    <div className="grid grid-cols-2 gap-3">
-                      <input className="rounded-lg border px-3 py-2 text-sm sm:text-base" placeholder="City" />
-                      <input className="rounded-lg border px-3 py-2 text-sm sm:text-base" placeholder="Pin Code" />
+                        {/* Reviews carousel */}
+                        <section className="bg-white rounded-2xl shadow-soft p-4 sm:p-6 mt-6">
+                          <div className="flex items-center justify-between mb-3">
+                            <h3 className="text-lg sm:text-xl font-bold text-[var(--primary)]">
+                              Product Reviews
+                            </h3>
+                            <div className="flex items-center gap-2">
+                              <button
+                                className="px-3 py-1.5 rounded-lg border hover:bg-[var(--bg)]"
+                                aria-label="Previous"
+                                onClick={prevT}
+                              >
+                                ‹
+                              </button>
+                              <button
+                                className="px-3 py-1.5 rounded-lg border hover:bg-[var(--bg)]"
+                                aria-label="Next"
+                                onClick={nextT}
+                              >
+                                ›
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Carousel inner */}
+                          <div className="relative overflow-hidden">
+                            <div
+                              className="transition-all duration-500"
+                              style={{
+                                transform: `translateX(-${tIndex * 100}%)`,
+                                display: "grid",
+                                gridTemplateColumns: `repeat(${TESTIMONIALS.length}, 100%)`,
+                              }}
+                            >
+                              {TESTIMONIALS.map((t, idx) => (
+                                <div key={idx} className="p-2">
+                                  <div className="flex items-start gap-3 border rounded-lg p-4 bg-white shadow-sm">
+                                    <div className="w-10 h-10 rounded-full bg-[var(--primary)] text-white flex items-center justify-center text-sm font-semibold">
+                                      {t.name
+                                        .split(" ")
+                                        .map((w) => w[0])
+                                        .slice(0, 1)
+                                        .join("")
+                                        .toUpperCase()}
+                                    </div>
+
+                                    <div className="flex-1">
+                                      <div className="font-semibold text-gray-900 text-sm">
+                                        {t.name}
+                                      </div>
+                                      <p className="mt-1 text-gray-800 text-sm">
+                                        "{t.text}"
+                                      </p>
+                                      <div className="mt-1 flex items-center text-amber-500 text-sm leading-none">
+                                        {"★".repeat(t.rating)}
+                                        {Array(5 - t.rating).fill("☆")}
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Dots */}
+                          <div className="mt-3 flex items-center justify-center gap-2">
+                            {TESTIMONIALS.map((_, i) => (
+                              <button
+                                key={i}
+                                onClick={() => setTIndex(i)}
+                                className={`w-2.5 h-2.5 rounded-full ${
+                                  i === tIndex
+                                    ? "bg-[var(--primary)]"
+                                    : "bg-gray-300"
+                                }`}
+                                aria-label={`Go to slide ${i + 1}`}
+                              ></button>
+                            ))}
+                          </div>
+                        </section>
+                      </div>
                     </div>
-                    <div className="border rounded-lg p-3 text-sm space-y-1">
-                      <div className="flex justify-between"><span>Items</span><span>{cartCount}</span></div>
-                      <div className="flex justify-between"><span>Subtotal</span><span>{formatINR(cartSubtotal)}</span></div>
-                      <div className="flex justify-between"><span>Discount (if coupon)</span><span>-{formatINR(couponApplied ? Math.round(cartSubtotal * 0.15) : 0)}</span></div>
-                      <div className="flex justify-between font-semibold"><span>To Pay</span><span>{formatINR(Math.max(cartSubtotal - (couponApplied ? Math.round(cartSubtotal * 0.15) : 0), 0))}</span></div>
-                    </div>
-                    <PrimaryBtn onClick={() => navigate('payment')}>Proceed to Payment</PrimaryBtn>
-                  </div>
-                </section>
-              )}
+                  </section>
+                )}
+
 
               {/* PAYMENT */}
               {page === "payment" && (
