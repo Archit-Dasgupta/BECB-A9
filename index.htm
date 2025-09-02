@@ -107,15 +107,19 @@ html, body, #root { margin: 0; padding: 0; }
       const formatINR = (n) => "₹" + n.toFixed(0);
       const pctOff = (price, compareAt) => Math.round(((compareAt - price) / compareAt) * 100);
       
-      // SizeIcon now loads external SVGs from /img folder
       const SizeIcon = ({ t = 'S' }) => {
-        const sizeClass = t === 'S' ? 'h-5 w-5' : t === 'M' ? 'h-6 w-6' : 'h-7 w-7';
         const srcMap = {
           S: "img/small-dog.svg",
           M: "img/medium-dog.svg",
           L: "img/large-dog.svg",
         };
-        return <img src={srcMap[t]} alt={`${t} dog`} className={sizeClass} />;
+        return (
+          <img
+            src={srcMap[t]}
+            alt={`${t} dog`}
+            className="w-full h-full object-contain p-2"
+          />
+        );
       };
 
       
@@ -153,12 +157,14 @@ html, body, #root { margin: 0; padding: 0; }
         
 
     const CATALOG = [
-        { id: 1, name: "Paw Smile's Complete Dog Dental Kit", type: "Dental Kit", price: 499, compareAt: 699, stock: 7,  image: "img/product1.png", badge: "Best Seller" , sizes: ['S','M','L'], rating: 4.8, eta: "2–3 days" },
-        { id: 2, name: "Paw Smile's Small Dogs & Puppy Gentle Brush", type: "Brush", price: 399, compareAt: 549, stock: 12, image: "img/product2.png", badge: "New" , sizes: ['S','M'], rating: 4.7, eta: "2–4 days" },
-        { id: 3, name: "Dog Plaque Remover",  type: "Strips", price: 599, compareAt: 799, stock: 5,  image: "img/product6.png", badge: "Limited" , sizes: ['M','L'], rating: 4.9, eta: "2–3 days" },
-        { id: 4, name: "Paw Smile Dog Chew Toy Tooth Cleaner", type: "Chew Toy", price: 299, compareAt: 399, stock: 20, image: "img/product3.png", badge: "Popular", sizes: ['S','M'], rating: 4.5, eta: "3–5 days" },
-        { id: 5, name: "Paw Smile's Dog Breath Spray - Mint", type: "Others", price: 199, compareAt: 299, stock: 15, image: "img/product4.png", badge: "New", sizes: ['S','M','L'], rating: 4.6, eta: "2–4 days" },
-        { id: 6, name: "Paw Smile Dog Dental Wipes - 50 wipes", type: "Others", price: 349, compareAt: 449, stock: 25, image: "img/product5.png", badge: "Value Pack", sizes: ['S','L'], rating: 4.4, eta: "3–5 days" }
+        { id: 1, name: "Paw Smile's Complete Dog Dental Kit", type: "Dental Kit", price: 799, compareAt: 999, stock: 7,  image: "img/product1.png", badge: "Previously Bought" , sizes: ['S','M','L'], rating: 4.8, eta: "2–3 days" },
+        { id: 2, name: "Paw Smile's Small Dogs & Puppy Gentle Brush", type: "Brush", price: 399, compareAt: 549, stock: 12, image: "img/product2.png", badge: "Best Seller", sizes: ['S','M'], rating: 4.7, eta: "2–4 days" },
+        { id: 3, name: "Paw Smile's Gentle Dog Plaque Remover",  type: "Strips", price: 599, compareAt: 799, stock: 5,  image: "img/product6.png", badge: "New" , sizes: ['M','L'], rating: 4.9, eta: "2–3 days" },
+        { id: 4, name: "Paw Smile Dog Chew Toy Tooth Cleaner", type: "Chew Toy", price: 699, compareAt: 899, stock: 20, image: "img/product3.png", badge: "Popular", sizes: ['S','M'], rating: 4.5, eta: "3–5 days" },
+        { id: 5, name: "Paw Smile's Dog Breath Spray - Mint", type: "Others", price: 299, compareAt: 399, stock: 15, image: "img/product4.png", badge: "Best Seller", sizes: ['S','M','L'], rating: 4.6, eta: "2–4 days" },
+        { id: 6, name: "Paw Smile Dog Dental Wipes - 50 wipes", type: "Others", price: 199, compareAt: 449, stock: 25, image: "img/product5.png", badge: "New", sizes: ['S','L'], rating: 4.4, eta: "3–5 days" },
+        { id: 7, name: "Paw Smile Special Dog Toothpaste", type: "Strips", price: 299, compareAt: 549, stock: 25, image: "img/product7.png", badge: "New", sizes: ['L'], rating: 4.2, eta: "3–5 days" },
+        { id: 8, name: "Paw Smile dental water additive", type: "Others", price: 499, compareAt: 649, stock: 25, image: "img/product8.png", badge: "New", sizes: ['M'], rating: 3.9, eta: "3–5 days" },
       ];
 
       function App() {
@@ -219,7 +225,8 @@ html, body, #root { margin: 0; padding: 0; }
     
         // base filters
         const prices = useMemo(() => CATALOG.map(p => p.price), []);
-        const minP = Math.min(...prices), maxP = Math.max(...prices);
+        const minP = Math.min(...prices);
+        const maxP = Math.max(...prices);
         const [priceCap, setPriceCap] = useState(maxP);
         const [typesSelected, setTypesSelected] = useState({All:true, Brush:false, Strips:false, 'Dental Kit':false, 'Chew Toy':false, Others:false});
         const [sizesSelected, setSizesSelected] = useState({S:false, M:false, L:false});
@@ -371,15 +378,20 @@ html, body, #root { margin: 0; padding: 0; }
                     )}
                   </div>
 
-                  {/* Center: Compact desktop nav truly centered */}
-                  <div className="hidden sm:flex flex-1 justify-center">
-                    <nav className="flex items-center gap-2 rounded-full bg-white/10 backdrop-blur px-2 py-1">
+                  {/* Center nav overlay — compact pill */}
+                  <div className="hidden sm:flex absolute inset-0 z-10 pointer-events-none items-center">
+                    <nav
+                      className="pointer-events-auto mx-auto w-fit
+                                flex items-center gap-2 rounded-full
+                                bg-white/10 backdrop-blur px-3 py-1"
+                    >
                       <button onClick={() => navigate('landing')} className="px-3 py-1 rounded-full hover:bg-white/20 text-sm font-medium">Home</button>
                       <button onClick={() => navigate('about')}   className="px-3 py-1 rounded-full hover:bg-white/20 text-sm font-medium">About Us</button>
                       <button onClick={() => navigate('shop')}    className="px-3 py-1 rounded-full hover:bg-white/20 text-sm font-medium">Shop</button>
-                      <button onClick={() => navigate('about')}    className="px-3 py-1 rounded-full hover:bg-white/20 text-sm font-medium">Contact</button>
+                      <button onClick={() => navigate('about')}   className="px-3 py-1 rounded-full hover:bg-white/20 text-sm font-medium">Contact</button>
                     </nav>
                   </div>
+
 
                   {/* Right: Desktop search + cart / Mobile actions */}
                   <div className="shrink-0 flex items-center justify-end gap-2">
@@ -621,7 +633,7 @@ html, body, #root { margin: 0; padding: 0; }
                   {/* HERO with background image */}
                   <section className="relative overflow-hidden shadow-soft rounded-none -mt-0 w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw]">
                     <div className="absolute inset-0">
-                      <img src="img/hero2.png" alt="Happy dog background" className="w-full h-full object-cover" />
+                      <img src="img/hero2.png" loading = "lazy" alt="Happy dog background" className="w-full h-full object-cover" />
                       <div className="absolute inset-0 bg-gradient-to-r from-black/55 via-black/35 to-transparent"></div>
                     </div>
                     <div className="relative p-6 sm:p-10 min-h-[260px] md:min-h-[420px] flex items-center">
@@ -711,12 +723,14 @@ html, body, #root { margin: 0; padding: 0; }
                                     <span className="absolute top-2 left-2 text-[10px] bg-[var(--primary)] text-white px-2 py-1 rounded-lg">{p.badge}</span>
                                     <span className="absolute top-2 right-2 text-[10px] bg-[var(--accent)] text-white px-2 py-1 rounded-lg">-{pctOff(p.price, p.compareAt)}%</span>
                                   </div>
-                                  <div className="text-xs font-semibold leading-tight clamp-1">{p.name}</div>
-                                  <div className="text-xs text-gray-700">
+                                  <div className="text-sm font-semibold leading-tight break-words">
+                                    {p.name}
+                                  </div>
+                                  <div className="text-xs text-black-700">
                                     <span className="font-semibold">{formatINR(p.price)}</span>
                                     <span className="line-through-muted ml-1">{formatINR(p.compareAt)}</span>
                                   </div>
-                                  <div className="text-[10px] text-gray-600 mt-1">⭐ {p.rating?.toFixed(1) ?? "4.7"} · 🚚 {p.eta ?? "2–4 days"}</div>
+                                  <div className="text-[11px] text-gray-600 mt-1">⭐ {p.rating?.toFixed(1) ?? "4.7"} · 🚚 {p.eta ?? "2–4 days"}</div>
 
                                   <div className="mt-2 flex justify-end">
                                   {qtyInCart(p.id) > 0 ? (
@@ -758,7 +772,9 @@ html, body, #root { margin: 0; padding: 0; }
                             <span className="absolute top-2 left-2 text-[10px] bg-[var(--primary)] text-white px-2 py-1 rounded-lg">{p.badge}</span>
                             <span className="absolute top-2 right-2 text-[10px] bg-[var(--accent)] text-white px-2 py-1 rounded-lg">-{pctOff(p.price, p.compareAt)}%</span>
                           </div>
-                          <div className="text-sm font-semibold leading-tight clamp-1">{p.name}</div>
+                          <div className="text-sm font-semibold leading-tight break-words">
+                            {p.name}
+                          </div>
                           <div className="text-sm text-gray-700">
                             <span className="font-semibold">{formatINR(p.price)}</span>
                             <span className="line-through-muted ml-1">{formatINR(p.compareAt)}</span>
@@ -1016,8 +1032,10 @@ html, body, #root { margin: 0; padding: 0; }
                           <span className="absolute top-2 left-2 text-[10px] bg-[var(--primary)] text-white px-2 py-1 rounded-lg">{p.badge}</span>
                           <span className="absolute top-2 right-2 text-[10px] bg-[var(--accent)] text-white px-2 py-1 rounded-lg">-{pctOff(p.price, p.compareAt)}%</span>
                         </div>
-                        <div className="text-sm font-semibold leading-tight clamp-1">{p.name}</div>
-                        <div className="text-sm text-gray-700">
+                        <div className="text-sm font-semibold leading-tight break-words">
+                          {p.name}
+                        </div>
+                        <div className="text-sm text-black-700">
                           <span className="font-semibold">{formatINR(p.price)}</span>
                           <span className="line-through-muted ml-1">{formatINR(p.compareAt)}</span>
                         </div>
@@ -1030,7 +1048,7 @@ html, body, #root { margin: 0; padding: 0; }
                             <button onClick={(e) => { e.stopPropagation(); addToCart(p.id); }} className="px-2 py-1 text-base leading-none">+</button>
                           </div>
                         ) : (
-                          <button onClick={(e) => { e.stopPropagation(); addToCart(p.id); }} className="absolute bottom-2 right-2 text-[11px] font-semibold bg-white text-[var(--accent)] border border-[var(--accent)] px-2 py-0.5 rounded-xl shadow">ADD +</button>
+                          <button onClick={(e) => { e.stopPropagation(); addToCart(p.id); }} className="absolute bottom-2 right-2 text-[11px] font-semibold bg-white text-[var(--accent)] border border-[var(--accent)] px-3 py-1 rounded-xl shadow">ADD +</button>
                         )}
                       </div>
                     ))}
@@ -1167,15 +1185,19 @@ html, body, #root { margin: 0; padding: 0; }
                           Add to Cart
                         </button>
 
-                        <button
-                          onClick={() => {
-                            addToCart(activeProduct.id); // ensure item is in cart
-                            navigate("address"); // take user to checkout
-                          }}
-                          className="flex-1 text-sm sm:text-base font-semibold bg-white text-[var(--accent)] border border-[var(--accent)] px-4 py-2 rounded-xl shadow hover:bg-[var(--bg)] transition"
-                        >
-                          Buy Now
-                        </button>
+<button
+  onClick={() => {
+    addToCart(activeProduct.id);     // ensure item is in cart
+    setSearchOpen?.(false);          // close search overlay if present
+    setDrawerOpen?.(false);          // close cart drawer if present
+    setFiltersOpen?.(false);         // close filters panel if present
+    setTimeout(() => navigate('address'), 0); // then go to Address
+  }}
+  className="flex-1 text-sm sm:text-base font-semibold bg-white text-[var(--accent)] border border-[var(--accent)] px-4 py-2 rounded-xl shadow hover:bg-[var(--bg)] transition"
+>
+  Buy Now
+</button>
+
                       </div>
 
                       {/* Description */}
@@ -1275,6 +1297,29 @@ html, body, #root { margin: 0; padding: 0; }
                   </section>
                 )}
 
+              {/* ADDRESS */}
+              {page === "address" && (
+                <section className="max-w-md w-full mx-auto bg-white rounded-2xl shadow p-4 sm:p-6">
+                  <h2 className="text-lg sm:text-xl font-bold text-[var(--primary)]">Delivery Details</h2>
+                  <div className="text-xs mt-1 text-gray-600">Tip: Add more items and apply SMILE15 at checkout to save more.</div>
+                  <div className="mt-4 space-y-3">
+                    <input className="w-full rounded-lg border px-3 py-2 text-sm sm:text-base" placeholder="Full Name" />
+                    <input className="w-full rounded-lg border px-3 py-2 text-sm sm:text-base" placeholder="Mobile Number" />
+                    <input className="w-full rounded-lg border px-3 py-2 text-sm sm:text-base" placeholder="Address" />
+                    <div className="grid grid-cols-2 gap-3">
+                      <input className="rounded-lg border px-3 py-2 text-sm sm:text-base" placeholder="City" />
+                      <input className="rounded-lg border px-3 py-2 text-sm sm:text-base" placeholder="Pin Code" />
+                    </div>
+                    <div className="border rounded-lg p-3 text-sm space-y-1">
+                      <div className="flex justify-between"><span>Items</span><span>{cartCount}</span></div>
+                      <div className="flex justify-between"><span>Subtotal</span><span>{formatINR(cartSubtotal)}</span></div>
+                      <div className="flex justify-between"><span>Discount (if coupon)</span><span>-{formatINR(couponApplied ? Math.round(cartSubtotal * 0.15) : 0)}</span></div>
+                      <div className="flex justify-between font-semibold"><span>To Pay</span><span>{formatINR(Math.max(cartSubtotal - (couponApplied ? Math.round(cartSubtotal * 0.15) : 0), 0))}</span></div>
+                    </div>
+                    <PrimaryBtn onClick={() => navigate('payment')}>Proceed to Payment</PrimaryBtn>
+                  </div>
+                </section>
+              )}
 
               {/* PAYMENT */}
               {page === "payment" && (
@@ -1359,7 +1404,7 @@ html, body, #root { margin: 0; padding: 0; }
               {page === "thankyou" && (
                 <section className="text-center bg-white rounded-2xl shadow p-6 sm:p-8 max-w-lg w-full mx-auto">
                   <div className="rounded-XL overflow-hidden aspect-[25/17] mb-4">
-                    <img src="https://placedog.net/500/340?id=280" alt="Thank you dog" loading="lazy" className="w-full h-full object-cover" />
+                    <img src="img/thankyou.png" alt="Thank you dog" loading="lazy" className="w-full h-full object-cover" />
                   </div>
                   <h2 className="text-xl sm:text-2xl font-bold text-[var(--accent)]">Thank You!</h2>
                   <p className="mt-2">Your order has been placed successfully.</p>
